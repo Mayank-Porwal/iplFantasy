@@ -1,0 +1,87 @@
+paths:
+  /player:
+    get:
+      summary: Get player by id.
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: player_id
+          description: player_id
+          required: true
+      responses:
+        '200':
+          description: OK
+
+  /players/category:
+    get:
+      summary: Get details of players by category.
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: category
+          description: category
+          required: true
+      responses:
+        '200':
+          description: A Player object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+
+  /players/team:
+    get:
+      summary: Get details of players by the IPL team.
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: team
+          description: team
+          required: true
+      responses:
+        '200':
+          description: A Player object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+
+  /players:
+    get:
+      summary: Get details of all the players.
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: A Player object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Player'
+
+components:
+  schemas:
+    Player:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The player's ID.
+        name:
+          type: string
+          description: The player's name.
+        cap:
+          type: string
+          description: The player's cap.
+        category:
+          type: string
+          description: The player's category.
+        image_file:
+          type: string
+          description: The player's image.
+        ipl_team:
+          type: string
+          description: The player's IPL team.

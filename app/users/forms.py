@@ -48,9 +48,3 @@ class UpdateAccountForm(FlaskForm):
             user = User.query.filter_by(email=email.data).first()
             if user:
                 raise ValidationError('Email already taken. Please choose a different one.')
-
-
-class TeamForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
-    players = FieldList
-
