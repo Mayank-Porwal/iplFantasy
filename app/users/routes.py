@@ -1,5 +1,12 @@
 from flask import Blueprint, render_template, flash, url_for, redirect, request
 from flask_login import login_user, current_user, logout_user, login_required
+from flask_jwt_extended import (
+    create_access_token,
+    create_refresh_token,
+    get_jwt_identity,
+    get_jwt,
+    jwt_required,
+)
 from app.users.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from app.models import User
 from app import db, bcrypt
