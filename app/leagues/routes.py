@@ -1,6 +1,7 @@
 import pandas as pd
 from flask import Blueprint, request
 from sqlalchemy import func
+from flask_jwt_extended import jwt_required
 from app.models import UserLeague, UserTeam, LeagueInfo, User
 from app import db
 from app.leagues.utils import LeagueType, generate_uuid
@@ -9,6 +10,7 @@ leagues = Blueprint('leagues', __name__)
 
 
 @leagues.route('/create_league', methods=['POST'])
+@jwt_required()
 def create_league():
     payload = request.get_json()
     name = payload.get('name')
