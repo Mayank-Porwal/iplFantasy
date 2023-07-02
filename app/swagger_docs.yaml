@@ -9,6 +9,7 @@ paths:
           name: player_id
           description: player_id
           required: true
+          example: 339
       responses:
         '200':
           description: OK
@@ -23,6 +24,7 @@ paths:
           name: category
           description: category
           required: true
+          example: batsman
       responses:
         '200':
           description: A Player object
@@ -41,6 +43,7 @@ paths:
           name: team
           description: team
           required: true
+          example: rr
       responses:
         '200':
           description: A Player object
@@ -61,6 +64,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Player'
+
+  /create_league:
+    post:
+      summary: Create a league.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: postCreateLeagueInfo
+          description: postCreateLeagueInfo body
+          schema:
+            $ref: '#/definitions/schemas/postCreateLeagueInfo'
+      responses:
+        '201':
+          description: Successfully created the league.
+        '409':
+          description: League already exists.
+
+  /join_league:
+    post:
+      summary: Join an existing league.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: postJoinLeagueInfo
+          description: postJoinLeagueInfo body
+          schema:
+            $ref: '#/definitions/schemas/postJoinLeagueInfo'
+      responses:
+        '201':
+          description: Successfully joined the league.
+        '409':
+          description: You've already joined the league.
+        '422':
+          description: Incorrect code.
+
+  /delete_league:
+    post:
+      summary: Delete an existing league.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: postDeleteLeagueInfo
+          description: postDeleteLeagueInfo body
+          schema:
+            $ref: '#/definitions/schemas/postDeleteLeagueInfo'
+      responses:
+        '201':
+          description: Successfully deleted the league.
+        '403':
+          description: League can be deleted by its owner only.
 
 components:
   schemas:
@@ -85,3 +147,61 @@ components:
         ipl_team:
           type: string
           description: The player's IPL team.
+
+definitions:
+  schemas:
+    postCreateLeagueInfo:
+      type: object
+      required:
+        - postCreateLeagueInfo
+      properties:
+        name:
+          type: string
+          description: Name of the league
+          example: My league
+        owner_name:
+          type: string
+          description: Name of the user who's creating the league
+          example: test1
+        type:
+          type: string
+          description: Type of the league
+          example: private
+
+    postJoinLeagueInfo:
+      type: object
+      required:
+        - postJoinLeagueInfo
+      properties:
+        team_name:
+          type: string
+          description: Name of the team that is joining the league
+          example: user3 team
+        code:
+          type: string
+          description: Unique code for joining the league
+          example: C4795
+        user_name:
+          type: string
+          description: Name of the user who's joining the league
+          example: user1
+        type:
+          type: string
+          description: Type of the league
+          example: private
+        league_name:
+          type: string
+          description: Name of the league
+          example: My league
+
+    postDeleteLeagueInfo:
+      type: object
+      required:
+        - postDeleteLeagueInfo
+      properties:
+        league_name:
+          type: string
+          example: My league
+        owner_name:
+          type: string
+          example: test1
