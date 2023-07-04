@@ -31,7 +31,7 @@ def create_team():
     players = payload.get('players')
     user_name = payload.get('user_name')
 
-    user = User.query(username=user_name).first()
+    user = User.query.filter_by(username=user_name).first()
     if not user:
         return {'message': f'{user_name} does not exist'}, 403
 
