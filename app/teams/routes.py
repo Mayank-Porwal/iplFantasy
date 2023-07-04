@@ -24,7 +24,7 @@ def get_teams_by_a_user():
     return {'message': 'No teams created by user yet.'}, 404
 
 
-@teams.route('/create_team', methods=['POST'])
+@teams.route('/create-team', methods=['POST'])
 def create_team():
     payload = request.get_json()
     name = payload.get('name')
