@@ -10,7 +10,6 @@ leagues = Blueprint('leagues', __name__)
 
 
 @leagues.route('/create_league', methods=['POST'])
-@jwt_required()
 def create_league():
     payload = request.get_json()
     name = payload.get('name')

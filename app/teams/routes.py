@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from app import db
-from app.models import UserTeam
+from app.models import UserTeam, User
 from app.teams.utils import get_team_object
 
 teams = Blueprint('teams', __name__)
@@ -29,12 +29,16 @@ def create_team():
     payload = request.get_json()
     name = payload.get('name')
     players = payload.get('players')
-    user_id = payload.get('user_id')
+    user_name = payload.get('user_name')
 
-    if UserTeam.query.filter_by(name=name, user_id=user_id).first():
+    user = User.query(username=user_name).first()
+    if not user:
+        return {'message': f'{user_name} does not exist'}, 403
+
+    if UserTeam.query.filter_by(name=name, user_id=user.id).first():
         return {'message': f'{name} already exists'}, 409
 
-    team = UserTeam(name=name, players=players, user_id=user_id)
+    team = UserTeam(name=name, players=players, user_id=user.id)
     db.session.add(team)
     db.session.commit()
     return {'message': 'Successfully created the team.'}, 201
