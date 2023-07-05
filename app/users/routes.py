@@ -53,7 +53,7 @@ def login():
 def logout():
     jti = get_jwt()["jti"]
     revoked_token = RevokedAccessTokens(jti=jti)
-    revoked_token.add()
+    revoked_token.save()
     return {'message': 'Access token has been revoked. User is logged out'}, 201
 
 

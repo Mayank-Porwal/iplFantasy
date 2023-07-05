@@ -9,7 +9,7 @@ from app.leagues.utils import LeagueType, generate_uuid
 leagues = Blueprint('leagues', __name__)
 
 
-@leagues.route('/create_league', methods=['POST'])
+@leagues.route('/create-league', methods=['POST'])
 def create_league():
     payload = request.get_json()
     name = payload.get('name')
@@ -33,7 +33,7 @@ def create_league():
     return {'message': f'Successfully created the league. Code to join: {league.join_code}'}, 201
 
 
-@leagues.route('/join_league', methods=['POST'])
+@leagues.route('/join-league', methods=['POST'])
 def join_league():
     payload = request.get_json()
     team_name = payload.get('team_name')
@@ -76,7 +76,7 @@ def join_league():
         return {'message': f'Please create a team to join the league.'}, 422
 
 
-@leagues.route('/delete_league', methods=['POST'])
+@leagues.route('/delete-league', methods=['POST'])
 def delete_league():
     payload = request.get_json()
     league_name = payload.get('league_name')
@@ -98,7 +98,7 @@ def delete_league():
     return {'message': f'The league you are trying to delete does not exist.'}, 403
 
 
-@leagues.route('/transfer_league_ownership', methods=['POST'])
+@leagues.route('/transfer-league-ownership', methods=['POST'])
 def transfer_league_ownership():
     payload = request.get_json()
     league_id = payload.get('league_id')
@@ -117,7 +117,7 @@ def transfer_league_ownership():
     return {'message': f'The league you are trying to delete does not exist.'}, 403
 
 
-@leagues.route('/my_leagues')
+@leagues.route('/my-leagues')
 def get_my_leagues():
     user_id = request.args.get('user_id')
     result = db.session.query(LeagueInfo, UserLeague, UserTeam).filter(LeagueInfo.league_id == UserLeague.id).filter(
@@ -143,7 +143,7 @@ def get_my_leagues():
     return {'message': 'You are not a part of any league yet. Join one now.'}, 200
 
 
-@leagues.route('/public_leagues')
+@leagues.route('/public-leagues')
 def get_public_leagues():
     user_id = request.args.get('user_id')
     result = db.session.query(LeagueInfo, UserLeague, UserTeam).filter(LeagueInfo.league_id == UserLeague.id).filter(

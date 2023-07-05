@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from app import db
-from app.models import UserTeam, User
+from app.models import UserTeam, User, LeagueInfo
 from app.teams.utils import get_team_object
 
 teams = Blueprint('teams', __name__)
@@ -8,19 +8,37 @@ teams = Blueprint('teams', __name__)
 
 @teams.route('/team')
 def get_team():
-    team_id = request.args.get('team_id')
-    if not team_id:
-        return {'message': 'team_id missing in args'}, 500
-    team = UserTeam.query.get(int(team_id))
-    return get_team_object(team) if team else {'message': 'Team not found.'}, 404
+    team_name = request.args.get('name')
+    user_name = request.args.get('user_name')
+
+    if not team_name:
+        return {'message': 'team_name missing in args'}, 500
+    if not user_name:
+        return {'message': 'user_name missing in args'}, 500
+
+    user = User.query.filter_by(username=user_name).first()
+    if not user:
+        return {'message': f'{user_name} does not exist'}, 403
+
+    team = UserTeam.query.filter_by(name=team_name, user_id=user.id).first()
+    return get_team_object(team), 200 if team else {'message': 'Team not found.'}, 404
 
 
-@teams.route('/teams_of_user')
-def get_teams_by_a_user():
-    user_id = request.args.get('user_id')
-    team_list = UserTeam.query.filter_by(user_id=user_id)
-    if teams:
-        return [get_team_object(team) for team in team_list]
+@teams.route('/my-teams')
+def get_my_teams():
+    user_name = request.args.get('user_name')
+
+    if not user_name:
+        return {'message': 'user_name missing in args'}, 500
+
+    user = User.query.filter_by(username=user_name).first()
+    if not user:
+        return {'message': f'{user_name} does not exist'}, 403
+
+    team_list = UserTeam.query.filter_by(user_id=user.id).all()
+    if team_list:
+        return [get_team_object(team) for team in team_list], 200
+
     return {'message': 'No teams created by user yet.'}, 404
 
 
@@ -39,8 +57,26 @@ def create_team():
         return {'message': f'{name} already exists'}, 409
 
     team = UserTeam(name=name, players=players, user_id=user.id)
-    db.session.add(team)
-    db.session.commit()
+    team.save()
     return {'message': 'Successfully created the team.'}, 201
 
 
+@teams.route('/delete-team', methods=['POST'])
+def delete_team():
+    payload = request.get_json()
+    team_name = payload.get('team_name')
+    user_name = payload.get('user_name')
+
+    user = User.query.filter_by(username=user_name).first()
+    if not user:
+        return {'message': f'{user_name} does not exist'}, 403
+
+    team = UserTeam.query.filter_by(name=team_name).first()
+    if team:
+        if team.user_id == user.id:
+            LeagueInfo.query.filter_by(team_id=team.id).delete()
+            UserTeam.query.filter_by(id=team.id).delete()
+            db.session.commit()
+            return {'message': f'{team_name} deleted successfully.'}, 201
+        return {'message': f'Team can be deleted by its owner only.'}, 403
+    return {'message': f'The team you are trying to delete does not exist.'}, 403

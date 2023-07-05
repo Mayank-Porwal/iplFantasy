@@ -19,6 +19,10 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
 
 class UserLeague(db.Model):
     __tablename__ = 'user_league'
@@ -33,6 +37,10 @@ class UserLeague(db.Model):
 
     def __repr__(self):
         return f"UserLeague('League {self.name}' created by '{self.owner}' with code: '{self.join_code}')"
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
 
 class LeagueInfo(db.Model):
@@ -49,6 +57,10 @@ class LeagueInfo(db.Model):
     def __repr__(self):
         return f"LeagueInfo('User: {self.user_id} joined the league: {self.league_id} with team: {self.team_id}')"
 
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
 
 class UserTeam(db.Model):
     __tablename__ = 'user_team'
@@ -63,6 +75,10 @@ class UserTeam(db.Model):
 
     def __repr__(self):
         return f"UserTeam('{self.name}', '{self.players}')"
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
 
 
 class Player(db.Model):
@@ -85,7 +101,7 @@ class RevokedAccessTokens(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     jti = db.Column(db.String(120))
 
-    def add(self):
+    def save(self):
         db.session.add(self)
         db.session.commit()
 
