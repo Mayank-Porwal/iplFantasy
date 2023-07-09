@@ -1,12 +1,13 @@
 from flask import Blueprint, request
 from app import db
-from app.models import UserTeam, User, LeagueInfo
+from app.models import UserTeam, User, LeagueInfo, Player
 from app.teams.utils import get_team_object
+from app.players.utils import get_player_object
 
 teams = Blueprint('teams', __name__)
 
 
-@teams.route('/team')
+@teams.route('/user-team')
 def get_team():
     team_name = request.args.get('name')
     user_name = request.args.get('user_name')
@@ -21,7 +22,14 @@ def get_team():
         return {'message': f'{user_name} does not exist'}, 403
 
     team = UserTeam.query.filter_by(name=team_name, user_id=user.id).first()
-    return get_team_object(team), 200 if team else {'message': 'Team not found.'}, 404
+    if not team:
+        return {'message': 'Team not found.'}, 404
+
+    player_ids = [player['id'] for player in team.players]
+    players_list = Player.query.filter(Player.id.in_(player_ids)).all()
+    if players_list:
+        return [get_player_object(player) for player in players_list], 200
+    return {'message': 'Invalid players.'}, 404
 
 
 @teams.route('/my-teams')

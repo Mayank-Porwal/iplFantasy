@@ -13,7 +13,7 @@ leagues = Blueprint('leagues', __name__)
 def create_league():
     payload = request.get_json()
     name = payload.get('name')
-    owner_name = payload.get('owner_name')
+    owner_name = payload.get('user_name')
     league_type = payload.get('type')
 
     owner = User.query.filter_by(username=owner_name).first()
@@ -28,8 +28,7 @@ def create_league():
     else:
         league = UserLeague(name=name, owner=int(owner.id), league_type=league_type)
 
-    db.session.add(league)
-    db.session.commit()
+    league.save()
     return {'message': f'Successfully created the league. Code to join: {league.join_code}'}, 201
 
 
@@ -69,8 +68,7 @@ def join_league():
                 return {'message': f"You can't join with multiple teams in the same league."}, 409
 
         join = LeagueInfo(league_id=league.id, user_id=user.id, team_id=team.id)
-        db.session.add(join)
-        db.session.commit()
+        join.save()
         return {'message': f'Successfully joined the league: {league.name} with team: {team.name}.'}, 201
     else:
         return {'message': f'Please create a team to join the league.'}, 422
@@ -83,10 +81,8 @@ def delete_league():
     owner_name = payload.get('owner_name')
 
     league = UserLeague.query.filter_by(name=league_name).first()
-    owner = User.query.filter_by(username=owner_name).first()
-
     if league:
-        league_name = league.name
+        owner = User.query.filter_by(username=owner_name).first()
         if not owner:
             return {'message': f'User {owner_name} does not exist.'}, 403
         if league.owner == int(owner.id):
@@ -101,27 +97,34 @@ def delete_league():
 @leagues.route('/transfer-league-ownership', methods=['POST'])
 def transfer_league_ownership():
     payload = request.get_json()
-    league_id = payload.get('league_id')
-    owner = payload.get('owner')
+    league_name = payload.get('league_name')
+    owner_name = payload.get('user_name')
     new_owner = payload.get('new_owner')
 
-    league = UserLeague.query.filter_by(id=league_id).first()
-    league_name = league.name
-
+    league = UserLeague.query.filter_by(name=league_name).first()
     if league:
-        if league.owner == owner:
-            league.owner = new_owner
+        owner = User.query.filter_by(username=owner_name).first()
+        if league.owner == int(owner.id):
+            new_owner_obj = User.query.filter_by(username=new_owner).first()
+            if not new_owner_obj:
+                return {'message': f'User {new_owner} does not exist.'}, 403
+            league.owner = int(new_owner_obj.id)
             db.session.commit()
-            return {'message': f'{league_name} deleted successfully.'}, 201
-        return {'message': f'League can be deleted by its owner only.'}, 403
-    return {'message': f'The league you are trying to delete does not exist.'}, 403
+            return {'message': f'New owner of {league_name} is now: {new_owner}.'}, 201
+        return {'message': f"League's ownership can be modified by its owner only."}, 403
+    return {'message': f'The league you are trying to access does not exist.'}, 403
 
 
 @leagues.route('/my-leagues')
 def get_my_leagues():
-    user_id = request.args.get('user_id')
+    user_name = request.args.get('user_name')
+    user = User.query.filter_by(username=user_name).first()
+
+    if not user:
+        return {'message': f'User {user_name} does not exist.'}, 201
+
     result = db.session.query(LeagueInfo, UserLeague, UserTeam).filter(LeagueInfo.league_id == UserLeague.id).filter(
-        LeagueInfo.team_id == UserTeam.id).filter(LeagueInfo.user_id == int(user_id)).all()
+        LeagueInfo.team_id == UserTeam.id).filter(LeagueInfo.user_id == int(user.id)).all()
 
     if result:
         rows = []
@@ -140,7 +143,7 @@ def get_my_leagues():
         mrg.drop('cnt', axis=1, inplace=True)
 
         return mrg.to_dict('records'), 200
-    return {'message': 'You are not a part of any league yet. Join one now.'}, 200
+    return {'message': 'You are not a part of any league yet. Join one now.'}, 404
 
 
 @leagues.route('/public-leagues')
