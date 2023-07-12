@@ -1,5 +1,4 @@
 from flask import Blueprint, render_template, flash, url_for, redirect, request
-# from flask_login import login_user, current_user, logout_user, login_required
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -7,10 +6,8 @@ from flask_jwt_extended import (
     get_jwt,
     jwt_required,
 )
-from app.users.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from app.models import User, RevokedAccessTokens
 from app import db, bcrypt
-from app.users.utils import save_picture
 
 users = Blueprint('users', __name__)
 
@@ -21,12 +18,13 @@ def register():
     username = payload.get('username')
     password = payload.get('password')
     email = payload.get('email')
+    phone_number = payload.get('phone_number')
 
     if User.query.filter_by(username=username).first():
         return {'message': f'A user with {username} already exists.'}, 409
 
     hashed_pwd = bcrypt.generate_password_hash(password).decode('utf-8')
-    user = User(username=username, email=email, password=hashed_pwd)
+    user = User(username=username, email=email, password=hashed_pwd, phone_number=phone_number)
 
     db.session.add(user)
     db.session.commit()
@@ -42,8 +40,14 @@ def login():
 
     user = User.query.filter_by(username=username).first()
     if user and bcrypt.check_password_hash(user.password, password):
-        access_token = create_access_token(identity=user.id, fresh=True)
-        refresh_token = create_refresh_token(identity=user.id)
+        identity = {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "phone_number": user.phone_number
+        }
+        access_token = create_access_token(identity=identity, fresh=True)
+        refresh_token = create_refresh_token(identity=identity)
         return {'access_token': access_token, 'refresh_token': refresh_token}, 201
     return {'message': 'Invalid credentials'}, 401
 
