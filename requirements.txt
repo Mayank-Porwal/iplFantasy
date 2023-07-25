@@ -40,4 +40,4 @@ tzdata==2023.3
 Werkzeug==2.2.3
 WTForms==3.0.1
 marshmallow
-flask-smorest==0.42.0
+flask-smorest
