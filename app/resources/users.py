@@ -14,31 +14,34 @@ class UserRegister(MethodView):
     @blp.arguments(UserRegisterSchema)
     @blp.response(201, PostResponseSuccessSchema)
     def post(self, user_data):
-        username = user_data.get('username')
+        first_name = user_data.get('first_name')
+        last_name = user_data.get('last_name')
         password = user_data.get('password')
         email = user_data.get('email')
         phone_number = user_data.get('phone_number')
 
-        if User.query.filter_by(username=username).first():
-            abort(409, message=f'A user with {username} already exists.')
+        if User.query.filter_by(email=email).first():
+            abort(409, message=f'A user with email {email} already exists.')
 
         hashed_pwd = bcrypt.generate_password_hash(password).decode('utf-8')
-        user = User(username=username, email=email, password=hashed_pwd, phone_number=phone_number)
+        user = User(first_name=first_name, last_name=last_name, email=email, password=hashed_pwd,
+                    phone_number=phone_number)
         user.save()
 
-        return {'message': f'User successfully registered with username: {username}'}
+        return {'message': f'User successfully registered with email: {email}'}
 
 
 @blp.route('/login')
 class UserLogin(MethodView):
     @blp.arguments(UserLoginSchema)
     def post(self, user_data):
-        user = User.query.filter_by(username=user_data['username']).first()
+        user = User.query.filter_by(email=user_data['email']).first()
 
         if user and bcrypt.check_password_hash(user.password, user_data['password']):
             identity = {
                             "id": user.id,
-                            "username": user.username,
+                            "first_name": user.first_name,
+                            "last_name": user.last_name,
                             "email": user.email,
                             "phone_number": user.phone_number
                         }
