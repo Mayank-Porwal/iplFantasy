@@ -1,12 +1,7 @@
 import os
 from datetime import timedelta
-from flask import Flask, Blueprint
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
-from flask_migrate import Migrate
-from flasgger import Swagger
-from flask_jwt_extended import JWTManager
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
