@@ -14,7 +14,6 @@ class LeagueDto:
     api = Namespace('league', description='league related operations')
 
 
-
 @leagues.route('/create-league', methods=['POST'])
 def create_league():
     payload = request.get_json()
