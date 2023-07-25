@@ -63,3 +63,6 @@ def create_app():
     api.register_blueprint(leagues)
 
     return app
+
+
+run_app = create_app()
