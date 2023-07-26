@@ -19,11 +19,11 @@ class UserTeam(MethodView):
     @blp.response(200, GetTeamResponseSchema(many=True))
     def get(self, query_args):
         team_name = query_args.get('team_name')
-        user_name = query_args.get('user_name')
+        email = query_args.get('email')
 
-        user = User.query.filter_by(username=user_name).first()
+        user = User.query.filter_by(email=email).first()
         if not user:
-            abort(403, message=f'{user_name} does not exist')
+            abort(403, message=f'User with email: {email} does not exist')
 
         team = UserTeamModel.query.filter_by(name=team_name, user_id=user.id).first()
         if not team:
@@ -43,14 +43,14 @@ class UserTeam(MethodView):
     def post(self, payload):
         name = payload.get('team_name')
         players = payload.get('players')
-        user_name = payload.get('user_name')
+        email = payload.get('email')
 
-        user = User.query.filter_by(username=user_name).first()
+        user = User.query.filter_by(email=email).first()
         if not user:
-            return {'message': f'{user_name} does not exist'}, 403
+            abort(403, message=f'User with email: {email} does not exist')
 
         if UserTeamModel.query.filter_by(name=name, user_id=user.id).first():
-            return {'message': f'{name} already exists'}, 409
+            abort(409, message=f'{name} already exists')
 
         team = UserTeamModel(name=name, players=players, user_id=user.id)
         team.save()
@@ -60,11 +60,11 @@ class UserTeam(MethodView):
     @blp.response(201, PostResponseSuccessSchema)
     def delete(self, payload):
         team_name = payload.get('team_name')
-        user_name = payload.get('user_name')
+        email = payload.get('email')
 
-        user = User.query.filter_by(username=user_name).first()
+        user = User.query.filter_by(email=email).first()
         if not user:
-            abort(403, message=f'{user_name} does not exist')
+            abort(403, message=f'User with email: {email} does not exist')
 
         team = UserTeamModel.query.filter_by(name=team_name).first()
         if team:
@@ -84,14 +84,14 @@ class MyTeams(MethodView):
     @blp.arguments(MyTeamsRequestSchema, location='query')
     @blp.response(200, TeamResponseSchema(many=True))
     def get(self, query_args):
-        user_name = query_args.get('user_name')
+        email = query_args.get('email')
 
-        user = User.query.filter_by(username=user_name).first()
+        user = User.query.filter_by(email=email).first()
         if not user:
-            abort(403, message=f'{user_name} does not exist')
+            abort(403, message=f'User with email: {email} does not exist')
 
         team_list = UserTeamModel.query.filter_by(user_id=user.id).all()
         if team_list:
             return team_list
 
-        abort(404, message='No teams created by user yet')
+        abort(404, message='No teams created by the user yet. Create one now.')

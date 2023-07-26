@@ -17,12 +17,12 @@ class UserLeague(MethodView):
     @blp.response(201, PostResponseSuccessSchema)
     def post(self, payload):
         name = payload.get('league_name')
-        owner_name = payload.get('user_name')
+        email = payload.get('email')
         league_type = payload.get('type')
 
-        owner = User.query.filter_by(username=owner_name).first()
+        owner = User.query.filter_by(email=email).first()
         if not owner:
-            abort(403, message=f'{owner_name} does not exist')
+            abort(403, message=f'User with email: {email} does not exist')
 
         if UserLeagueModel.query.filter_by(name=name, owner=int(owner.id)).first():
             abort(409, message=f'{name} already exists')
@@ -39,13 +39,13 @@ class UserLeague(MethodView):
     @blp.response(201, PostResponseSuccessSchema)
     def delete(self, payload):
         league_name = payload.get('league_name')
-        owner_name = payload.get('user_name')
+        email = payload.get('email')
 
         league = UserLeagueModel.query.filter_by(name=league_name).first()
         if league:
-            owner = User.query.filter_by(username=owner_name).first()
+            owner = User.query.filter_by(email=email).first()
             if not owner:
-                abort(403, message=f'User {owner_name} does not exist')
+                abort(403, message=f'User with email: {email} does not exist')
             if league.owner == int(owner.id):
                 LeagueInfo.query.filter_by(league_id=league.id).delete()
                 UserLeagueModel.query.filter_by(id=league.id).delete()
@@ -62,7 +62,7 @@ class JoinLeague(MethodView):
     def post(self, payload):
         team_name = payload.get('team_name')
         join_code = payload.get('code')
-        user_name = payload.get('user_name')
+        email = payload.get('email')
         league_type = payload.get('type')
         league_name = payload.get('league_name')
 
@@ -77,9 +77,9 @@ class JoinLeague(MethodView):
                 abort(422, message='The join code is incorrect. Please try again.')
 
         # Checking if user has already joined the league with current team
-        user = User.query.filter_by(username=user_name).first()
+        user = User.query.filter_by(email=email).first()
         if not user:
-            abort(403, message=f'User: {user_name} does not exist')
+            abort(403, message=f'User with email: {email} does not exist')
 
         league_info = LeagueInfo.query.filter_by(league_id=league.id, user_id=user.id).first()
 
@@ -106,12 +106,12 @@ class TransferLeagueOwnership(MethodView):
     @blp.response(200, PostResponseSuccessSchema)
     def put(self, payload):
         league_name = payload.get('league_name')
-        owner_name = payload.get('user_name')
+        email = payload.get('email')
         new_owner = payload.get('new_owner')
 
         league = UserLeagueModel.query.filter_by(name=league_name).first()
         if league:
-            owner = User.query.filter_by(username=owner_name).first()
+            owner = User.query.filter_by(email=email).first()
             if league.owner == int(owner.id):
                 new_owner_obj = User.query.filter_by(username=new_owner).first()
                 if not new_owner_obj:

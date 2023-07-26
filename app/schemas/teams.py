@@ -20,12 +20,12 @@ class TeamPlayersSchema(Schema):
 
 class TeamSchema(Schema):
     team_name = fields.Str(required=True)
-    user_name = fields.Str(required=True)
+    email = fields.Str(required=True)
     players = fields.List(fields.Nested(TeamPlayersSchema))
 
 
 class MyTeamsRequestSchema(Schema):
-    user_name = fields.Str(required=True)
+    email = fields.Str(required=True)
 
 
 class TeamResponseSchema(Schema):
