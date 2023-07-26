@@ -34,6 +34,8 @@ class LeagueInfo(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey('user_team.id'), nullable=False)
     team_rank = db.Column(db.Integer, default=-1)
     is_active = db.Column(db.Boolean, default=True)
+    substitutes = db.Column(db.Integer, default=150)
+    team_points = db.Column(db.Float, default=0.0)
 
     def __repr__(self):
         return f"LeagueInfo('User: {self.user_id} joined the league: {self.league_id} with team: {self.team_id}')"

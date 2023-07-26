@@ -1,18 +1,44 @@
+import pandas as pd
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
-from app.schemas.leagues import LeagueSchema, JoinLeagueSchema, TransferLeagueOwnershipSchema
+from sqlalchemy import text
+from app.schemas.leagues import LeagueSchema, JoinLeagueSchema, TransferLeagueOwnershipSchema, LeagueGetSchema, \
+    LeagueGetResponse
 from app.schemas.util import PostResponseSuccessSchema
 from app.models.leagues import UserLeague as UserLeagueModel, LeagueInfo
 from app.models.teams import UserTeam as UserTeamModel
 from app.models.users import User
 from util import LeagueType, generate_uuid
-from db import db
+from db import db, conn
 
 blp = Blueprint('Leagues', __name__, description='League related endpoints')
 
 
 @blp.route('/league')
 class UserLeague(MethodView):
+    @blp.arguments(LeagueGetSchema, location='query')
+    @blp.response(200, LeagueGetResponse(many=True))
+    def get(self, query_args):
+        league_name = query_args.get('league_name')
+
+        query = """
+        select team_rank, ut.name as team_name, u.first_name || ' ' || u.last_name as owner, substitutes, team_points
+        from league_info li
+        join user_league ul 
+        on li.league_id = ul.id 
+        join user_team ut 
+        on ut.id = li.team_id
+        join public."user" u 
+        on u.id = ut.user_id 
+        where ul."name" = :league_name
+        ;
+        """
+
+        result = conn().execute(text(query), {'league_name': league_name}).fetchall()
+        df = pd.DataFrame(result, columns=['rank', 'team_name', 'team_owner', 'remaining_subs', 'points'])
+
+        return df.to_dict('records')
+
     @blp.arguments(LeagueSchema)
     @blp.response(201, PostResponseSuccessSchema)
     def post(self, payload):
