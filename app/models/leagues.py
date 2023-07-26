@@ -13,16 +13,13 @@ class UserLeague(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     owner = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     join_code = db.Column(db.String, nullable=True)
+    is_active = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return f"UserLeague('League {self.name}' created by '{self.owner}' with code: '{self.join_code}')"
 
     def save(self):
         db.session.add(self)
-        db.session.commit()
-
-    def remove(self):
-        db.session.delete(self)
         db.session.commit()
 
 
@@ -36,14 +33,11 @@ class LeagueInfo(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     team_id = db.Column(db.Integer, db.ForeignKey('user_team.id'), nullable=False)
     team_rank = db.Column(db.Integer, default=-1)
+    is_active = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return f"LeagueInfo('User: {self.user_id} joined the league: {self.league_id} with team: {self.team_id}')"
 
     def save(self):
         db.session.add(self)
-        db.session.commit()
-
-    def remove(self):
-        db.session.delete(self)
         db.session.commit()

@@ -24,7 +24,7 @@ class UserLeague(MethodView):
         if not owner:
             abort(403, message=f'User with email: {email} does not exist')
 
-        if UserLeagueModel.query.filter_by(name=name, owner=int(owner.id)).first():
+        if UserLeagueModel.query.filter_by(name=name, owner=int(owner.id), is_active=True).first():
             abort(409, message=f'{name} already exists')
 
         if league_type == LeagueType.private.name:
@@ -41,15 +41,19 @@ class UserLeague(MethodView):
         league_name = payload.get('league_name')
         email = payload.get('email')
 
-        league = UserLeagueModel.query.filter_by(name=league_name).first()
+        league = UserLeagueModel.query.filter_by(name=league_name, is_active=True).first()
         if league:
             owner = User.query.filter_by(email=email).first()
             if not owner:
                 abort(403, message=f'User with email: {email} does not exist')
             if league.owner == int(owner.id):
-                LeagueInfo.query.filter_by(league_id=league.id).delete()
-                UserLeagueModel.query.filter_by(id=league.id).delete()
+                league_info = LeagueInfo.query.filter_by(league_id=league.id).all()
+                for row in league_info:
+                    row.is_active = False
+
+                league.is_active = False
                 db.session.commit()
+
                 return {'message': f'{league_name} deleted successfully.'}
             abort(403, message='League can be deleted by its owner only')
         abort(403, message='The league you are trying to delete does not exist')
@@ -67,7 +71,7 @@ class JoinLeague(MethodView):
         league_name = payload.get('league_name')
 
         # Checking if the league exists or not
-        league = UserLeagueModel.query.filter_by(name=league_name).first()
+        league = UserLeagueModel.query.filter_by(name=league_name, is_active=True).first()
         if not league:
             abort(422, message='League does not exist. Please create one to join.')
 
@@ -81,10 +85,10 @@ class JoinLeague(MethodView):
         if not user:
             abort(403, message=f'User with email: {email} does not exist')
 
-        league_info = LeagueInfo.query.filter_by(league_id=league.id, user_id=user.id).first()
+        league_info = LeagueInfo.query.filter_by(league_id=league.id, user_id=user.id, is_active=True).first()
 
         # Check if the team trying to join exists or not, and the user is the owner or not
-        team = UserTeamModel.query.filter_by(name=team_name, user_id=user.id).first()
+        team = UserTeamModel.query.filter_by(name=team_name, user_id=user.id, is_active=True).first()
 
         if team:
             if league_info:
@@ -109,7 +113,7 @@ class TransferLeagueOwnership(MethodView):
         email = payload.get('email')
         new_owner = payload.get('new_owner')
 
-        league = UserLeagueModel.query.filter_by(name=league_name).first()
+        league = UserLeagueModel.query.filter_by(name=league_name, is_active=True).first()
         if league:
             owner = User.query.filter_by(email=email).first()
             if league.owner == int(owner.id):

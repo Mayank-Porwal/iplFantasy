@@ -25,7 +25,7 @@ class UserTeam(MethodView):
         if not user:
             abort(403, message=f'User with email: {email} does not exist')
 
-        team = UserTeamModel.query.filter_by(name=team_name, user_id=user.id).first()
+        team = UserTeamModel.query.filter_by(name=team_name, user_id=user.id, is_active=True).first()
         if not team:
             abort(404, message='Team not found.')
 
@@ -49,7 +49,7 @@ class UserTeam(MethodView):
         if not user:
             abort(403, message=f'User with email: {email} does not exist')
 
-        if UserTeamModel.query.filter_by(name=name, user_id=user.id).first():
+        if UserTeamModel.query.filter_by(name=name, user_id=user.id, is_active=True).first():
             abort(409, message=f'{name} already exists')
 
         team = UserTeamModel(name=name, players=players, user_id=user.id)
@@ -66,14 +66,17 @@ class UserTeam(MethodView):
         if not user:
             abort(403, message=f'User with email: {email} does not exist')
 
-        team = UserTeamModel.query.filter_by(name=team_name).first()
+        team = UserTeamModel.query.filter_by(name=team_name, is_active=True).first()
         if team:
             if team.user_id == user.id:
-                LeagueInfo.query.filter_by(team_id=team.id).delete()
+                league_info = LeagueInfo.query.filter_by(team_id=team.id, is_active=True).all()
+                if league_info:
+                    for row in league_info:
+                        row.is_active = False
+
+                team.is_active = False
                 db.session.commit()
 
-                team = UserTeamModel.query.filter_by(id=team.id).first()
-                team.remove()
                 return {'message': f'{team_name} deleted successfully.'}
             abort(403, message='Team can be deleted by its owner only')
         abort(403, message='The team you are trying to delete does not exist')
@@ -90,7 +93,7 @@ class MyTeams(MethodView):
         if not user:
             abort(403, message=f'User with email: {email} does not exist')
 
-        team_list = UserTeamModel.query.filter_by(user_id=user.id).all()
+        team_list = UserTeamModel.query.filter_by(user_id=user.id, is_active=True).all()
         if team_list:
             return team_list
 
