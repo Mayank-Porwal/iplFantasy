@@ -31,3 +31,9 @@ class MyTeamsRequestSchema(Schema):
 class TeamResponseSchema(Schema):
     team_name = fields.Str(required=True, attribute='name')
     players = fields.List(fields.Nested(TeamPlayersSchema))
+
+
+class RandomTeamSchema(Schema):
+    team_name = fields.Str(required=True)
+    email = fields.Str(required=True)
+

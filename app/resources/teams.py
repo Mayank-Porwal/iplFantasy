@@ -1,7 +1,8 @@
 import pandas as pd
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
-from app.schemas.teams import TeamSchema, GetTeamResponseSchema, MyTeamsRequestSchema, TeamResponseSchema
+from app.schemas.teams import TeamSchema, GetTeamResponseSchema, MyTeamsRequestSchema, TeamResponseSchema, \
+    RandomTeamSchema
 from app.schemas.util import PostResponseSuccessSchema
 from app.models.teams import UserTeam as UserTeamModel
 from app.models.users import User
@@ -98,3 +99,28 @@ class MyTeams(MethodView):
             return team_list
 
         abort(404, message='No teams created by the user yet. Create one now.')
+
+
+# @blp.route('/create-random-team')
+# class MyTeams(MethodView):
+#     @blp.arguments(RandomTeamSchema)
+#     @blp.response(200, TeamResponseSchema(many=True))
+#     def post(self, payload):
+#         team_name = payload.get('team_name')
+#         email = payload.get('email')
+#
+#         user = User.query.filter_by(email=email).first()
+#         if not user:
+#             abort(403, message=f'User with email: {email} does not exist')
+#
+#         team_list = UserTeamModel.query.filter_by(user_id=user.id, is_active=True).all()
+#         if team_list:
+#             return team_list
+#
+#         abort(404, message='No teams created by the user yet. Create one now.')
+#
+#     def _generate_random_team(self):
+#         total_players = 11
+#         total_cap = 100
+#
+#         avg_cap =

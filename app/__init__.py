@@ -5,9 +5,11 @@ from flask_bcrypt import Bcrypt
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from flask_mail import Mail
 from db import db
 
 bcrypt = Bcrypt()
+mail = Mail()
 
 
 def create_app():
@@ -17,18 +19,30 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
     app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=14)
-    app.config["API_TITLE"] = "IPL Fantasy REST API"
+    app.config["API_TITLE"] = "IPL Fantasy REST APIs"
     app.config["API_VERSION"] = "v1"
     app.config["OPENAPI_VERSION"] = "3.0.3"
     app.config["OPENAPI_URL_PREFIX"] = '/'
     app.config['OPENAPI_SWAGGER_UI_PATH'] = '/swagger-ui'
     app.config["OPENAPI_SWAGGER_UI_URL"] = 'https://cdn.jsdelivr.net/npm/swagger-ui-dist/'
     app.config["PROPAGATE_EXCEPTIONS"] = True
+    app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
+
+    # Mail Configs
+    app.config['MAIL_DEFAULT_SENDER'] = 'noreply@iplfantasy.com'
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 465
+    app.config['MAIL_USE_TLS'] = False
+    app.config['MAIL_USE_SSL'] = True
+    app.config['MAIL_DEBUG'] = False
+    app.config['MAIL_USERNAME'] = os.environ['MAIL_USERNAME']
+    app.config['MAIL_PASSWORD'] = os.environ['MAIL_PASSWORD']
 
     migrate = Migrate(app, db)
     jwt = JWTManager(app)
     db.init_app(app)
     bcrypt.init_app(app)
+    mail.init_app(app)
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):

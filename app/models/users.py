@@ -9,6 +9,8 @@ class User(db.Model):
     phone_number = db.Column(db.String(30))
     image_file = db.Column(db.String(50), nullable=False, default='default.jpeg')
     password = db.Column(db.String(256), nullable=False)
+    is_confirmed = db.Column(db.Boolean, default=False)
+    confirmed_on = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"

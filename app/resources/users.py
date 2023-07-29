@@ -1,10 +1,13 @@
+from flask import url_for
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, jwt_required, get_jwt
+from flask_mail import Message
 from app.schemas.users import UserRegisterSchema, UserLoginSchema
 from app.schemas.util import PostResponseSuccessSchema
 from app.models.users import User, RevokedAccessTokens
-from app import bcrypt
+from app import bcrypt, create_app
+from app.service.token import generate_token, confirm_token
 
 blp = Blueprint('Users', __name__, description='User related endpoints')
 
@@ -27,6 +30,12 @@ class UserRegister(MethodView):
         user = User(first_name=first_name, last_name=last_name, email=email, password=hashed_pwd,
                     phone_number=phone_number)
         user.save()
+
+        # Sending confirmation email
+        token = generate_token(email)
+        msg = Message('Confirm Email', sender=create_app().config["MAIL_DEFAULT_SENDER"], recipients=[email])
+        link = url_for('')
+
 
         return {'message': f'User successfully registered with email: {email}'}
 
