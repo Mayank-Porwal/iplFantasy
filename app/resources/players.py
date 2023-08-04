@@ -1,5 +1,6 @@
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
+from flask_jwt_extended import jwt_required
 from app.schemas.player import PlayerResponseSchema, PlayerByCategoryQuerySchema, PlayerByTeamQuerySchema
 from app.models.player import Player as PlayerModel
 
@@ -8,6 +9,7 @@ blp = Blueprint('Players', __name__, description='Player related endpoints')
 
 @blp.route('/players')
 class PlayersList(MethodView):
+    @jwt_required()
     @blp.response(200, PlayerResponseSchema(many=True))
     def get(self):
         return PlayerModel.query.all()
@@ -15,6 +17,7 @@ class PlayersList(MethodView):
 
 @blp.route('/player/<int:player_id>')
 class Player(MethodView):
+    @jwt_required()
     @blp.response(200, PlayerResponseSchema)
     def get(self, player_id):
         return PlayerModel.query.get_or_404(player_id)
@@ -22,6 +25,7 @@ class Player(MethodView):
 
 @blp.route('/player/category')
 class PlayerByCategory(MethodView):
+    @jwt_required()
     @blp.arguments(PlayerByCategoryQuerySchema, location='query')
     @blp.response(200, PlayerResponseSchema(many=True))
     def get(self, query_args):
@@ -34,6 +38,7 @@ class PlayerByCategory(MethodView):
 
 @blp.route('/player/team')
 class PlayerByIplTeam(MethodView):
+    @jwt_required()
     @blp.arguments(PlayerByTeamQuerySchema, location='query')
     @blp.response(200, PlayerResponseSchema(many=True))
     def get(self, query_args):

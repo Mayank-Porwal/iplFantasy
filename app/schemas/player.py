@@ -10,7 +10,6 @@ class PlayerResponseSchema(Schema):
     img = fields.Str(required=True, attribute='image_file')
 
 
-
 class PlayerByCategoryQuerySchema(Schema):
     category = fields.Str(required=True)
 

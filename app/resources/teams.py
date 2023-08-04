@@ -1,13 +1,14 @@
 import pandas as pd
 from flask_smorest import Blueprint, abort
 from flask.views import MethodView
-from app.schemas.teams import TeamSchema, GetTeamResponseSchema, MyTeamsRequestSchema, TeamResponseSchema
+from flask_jwt_extended import jwt_required
+from app.schemas.teams import TeamSchema, GetTeamResponseSchema, TeamResponseSchema
 from app.schemas.util import PostResponseSuccessSchema
 from app.models.teams import UserTeam as UserTeamModel
 from app.models.users import User
 from app.models.player import Player
 from app.models.leagues import LeagueInfo
-from util import get_player_object
+from util import get_player_object, fetch_user_from_jwt
 from db import db
 
 blp = Blueprint('Teams', __name__, description='Team related endpoints')
@@ -15,11 +16,12 @@ blp = Blueprint('Teams', __name__, description='Team related endpoints')
 
 @blp.route('/team')
 class UserTeam(MethodView):
+    @jwt_required()
     @blp.arguments(TeamSchema, location='query')
     @blp.response(200, GetTeamResponseSchema(many=True))
     def get(self, query_args):
         team_name = query_args.get('team_name')
-        email = query_args.get('email')
+        email = fetch_user_from_jwt()
 
         user = User.query.filter_by(email=email).first()
         if not user:
@@ -38,12 +40,13 @@ class UserTeam(MethodView):
             return final_df.to_dict('records')
         abort(404, message='No players found in the team.')
 
+    @jwt_required()
     @blp.arguments(TeamSchema)
     @blp.response(201, PostResponseSuccessSchema)
     def post(self, payload):
         name = payload.get('team_name')
         players = payload.get('players')
-        email = payload.get('email')
+        email = fetch_user_from_jwt()
 
         user = User.query.filter_by(email=email).first()
         if not user:
@@ -56,11 +59,12 @@ class UserTeam(MethodView):
         team.save()
         return {'message': 'Successfully created the team.'}
 
+    @jwt_required()
     @blp.arguments(TeamSchema)
     @blp.response(201, PostResponseSuccessSchema)
     def delete(self, payload):
         team_name = payload.get('team_name')
-        email = payload.get('email')
+        email = fetch_user_from_jwt()
 
         user = User.query.filter_by(email=email).first()
         if not user:
@@ -84,10 +88,10 @@ class UserTeam(MethodView):
 
 @blp.route('/my-teams')
 class MyTeams(MethodView):
-    @blp.arguments(MyTeamsRequestSchema, location='query')
+    @jwt_required()
     @blp.response(200, TeamResponseSchema(many=True))
-    def get(self, query_args):
-        email = query_args.get('email')
+    def get(self):
+        email = fetch_user_from_jwt()
 
         user = User.query.filter_by(email=email).first()
         if not user:
