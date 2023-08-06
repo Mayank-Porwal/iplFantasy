@@ -27,3 +27,7 @@ class LeagueGetResponse(Schema):
     team_owner = fields.Str(required=True)
     remaining_subs = fields.Int(required=True)
     points = fields.Float(required=True)
+
+
+class CreateLeagueQuerySchema(Schema):
+    team_name = fields.Str()

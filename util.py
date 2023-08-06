@@ -1,7 +1,7 @@
 import uuid
 from enum import Enum
 from flask_smorest import abort
-from flask_jwt_extended import get_jwt
+from flask_jwt_extended import get_jwt_identity
 
 
 class LeagueType(Enum):
@@ -23,14 +23,7 @@ def get_player_object(player):
 
 
 def fetch_user_from_jwt():
-    email = None
-
-    token = get_jwt().get('sub')
-    if token:
-        email = token.get('email')
-        if not email:
-            abort(498, message='invalid token')
-    else:
+    email = get_jwt_identity().get('email')
+    if not email:
         abort(498, message='invalid token')
-
     return email

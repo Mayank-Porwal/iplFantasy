@@ -1,10 +1,10 @@
 import pandas as pd
 from flask_smorest import Blueprint, abort
-from flask.views import MethodView, request
+from flask.views import MethodView
 from sqlalchemy import text
-from flask_jwt_extended import get_jwt, jwt_required
+from flask_jwt_extended import jwt_required
 from app.schemas.leagues import LeagueSchema, JoinLeagueSchema, TransferLeagueOwnershipSchema, LeagueGetSchema, \
-    LeagueGetResponse
+    LeagueGetResponse, CreateLeagueQuerySchema
 from app.schemas.util import PostResponseSuccessSchema
 from app.models.leagues import UserLeague as UserLeagueModel, LeagueInfo
 from app.models.users import User
@@ -43,12 +43,13 @@ class UserLeague(MethodView):
 
     @jwt_required()
     @blp.arguments(LeagueSchema)
+    @blp.arguments(CreateLeagueQuerySchema, location='query')
     @blp.response(201, PostResponseSuccessSchema)
-    def post(self, payload):
+    def post(self, payload, query_args):
         name = payload.get('league_name')
         league_type = payload.get('type')
         email = fetch_user_from_jwt()
-        team_name = request.args.get('team_name')
+        team_name = query_args.get('team_name')
 
         owner = User.query.filter_by(email=email).first()
         if not owner:
