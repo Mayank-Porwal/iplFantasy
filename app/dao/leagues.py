@@ -40,7 +40,7 @@ class LeagueDAO:
         join.save()
 
     @staticmethod
-    def create_league(league_name: str, league_type: str, user_id: int, join_code_flag: bool) -> None:
+    def create_league(league_name: str, league_type: str, user_id: int, join_code_flag: bool) -> UserLeague:
         if not join_code_flag:
             league: UserLeague = UserLeague(name=league_name, owner=int(user_id), league_type=league_type)
         else:
@@ -48,6 +48,7 @@ class LeagueDAO:
                                             join_code=generate_uuid())
 
         league.save()
+        return league
 
     @staticmethod
     def delete_league(league_info_list: list[LeagueInfo], league: UserLeague) -> None:

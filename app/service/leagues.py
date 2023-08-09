@@ -26,9 +26,9 @@ class LeagueService:
                 abort(409, message=f'{league_name} already exists')
 
         if league_type == LeagueType.private.name:
-            self.league_dao.create_league(league_name, league_type, owner.id, True)
+            league = self.league_dao.create_league(league_name, league_type, owner.id, True)
         else:
-            self.league_dao.create_league(league_name, league_type, owner.id, False)
+            league = self.league_dao.create_league(league_name, league_type, owner.id, False)
 
         if team_name:
             if league_type == LeagueType.private.name:
