@@ -1,6 +1,7 @@
 from flask_smorest import Blueprint
 from flask.views import MethodView
 from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 from app.schemas.teams import TeamSchema, GetTeamResponseSchema, TeamResponseSchema
 from app.schemas.util import PostResponseSuccessSchema
 from app.service.teams import TeamService
@@ -12,6 +13,7 @@ team_service = TeamService()
 
 @blp.route('/team')
 class UserTeam(MethodView):
+    @cross_origin()
     @jwt_required()
     @blp.arguments(TeamSchema, location='query')
     @blp.response(200, GetTeamResponseSchema(many=True))
@@ -21,6 +23,7 @@ class UserTeam(MethodView):
 
         return team_service.get_team_details(team_name, email)
 
+    @cross_origin()
     @jwt_required()
     @blp.arguments(TeamSchema)
     @blp.response(201, PostResponseSuccessSchema)
@@ -31,6 +34,7 @@ class UserTeam(MethodView):
 
         return team_service.create_team(name, players, email)
 
+    @cross_origin()
     @jwt_required()
     @blp.arguments(TeamSchema)
     @blp.response(201, PostResponseSuccessSchema)
@@ -43,6 +47,7 @@ class UserTeam(MethodView):
 
 @blp.route('/my-teams')
 class MyTeams(MethodView):
+    @cross_origin()
     @jwt_required()
     @blp.response(200, TeamResponseSchema(many=True))
     def get(self):

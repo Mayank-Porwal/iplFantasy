@@ -1,6 +1,7 @@
 from flask_smorest import Blueprint
 from flask.views import MethodView
 from flask_jwt_extended import jwt_required
+from flask_cors import cross_origin
 from app.schemas.player import PlayerResponseSchema, PlayerByCategoryQuerySchema, PlayerByTeamQuerySchema
 from app.service.players import PlayerService
 
@@ -10,6 +11,7 @@ player_service = PlayerService()
 
 @blp.route('/players')
 class PlayersList(MethodView):
+    @cross_origin()
     @jwt_required()
     @blp.response(200, PlayerResponseSchema(many=True))
     def get(self):
@@ -18,6 +20,7 @@ class PlayersList(MethodView):
 
 @blp.route('/player/<int:player_id>')
 class Player(MethodView):
+    @cross_origin()
     @jwt_required()
     @blp.response(200, PlayerResponseSchema)
     def get(self, player_id: int):
@@ -26,6 +29,7 @@ class Player(MethodView):
 
 @blp.route('/player/category')
 class PlayerByCategory(MethodView):
+    @cross_origin()
     @jwt_required()
     @blp.arguments(PlayerByCategoryQuerySchema, location='query')
     @blp.response(200, PlayerResponseSchema(many=True))
@@ -36,6 +40,7 @@ class PlayerByCategory(MethodView):
 
 @blp.route('/player/team')
 class PlayerByIplTeam(MethodView):
+    @cross_origin()
     @jwt_required()
     @blp.arguments(PlayerByTeamQuerySchema, location='query')
     @blp.response(200, PlayerResponseSchema(many=True))
