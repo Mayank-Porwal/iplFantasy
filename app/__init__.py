@@ -46,10 +46,10 @@ def create_app():
     def token_not_fresh_callback(jwt_header, jwt_payload):
         return {'message': 'Token is not fresh'}, 401
 
-    from app.resources.players import blp as players
-    from app.resources.users import blp as users
-    from app.resources.teams import blp as teams
-    from app.resources.leagues import blp as leagues
+    from app.controller.players import blp as players
+    from app.controller.users import blp as users
+    from app.controller.teams import blp as teams
+    from app.controller.leagues import blp as leagues
 
     api = Api(app)
     api.register_blueprint(players)
