@@ -1,7 +1,11 @@
 from db import db, conn
 from app.models.leagues import UserLeague, LeagueInfo
+from app.models.teams import UserTeam
+from app.models.users import User
 from app.dao.users import UserDAO
 from app.utils.common_utils import generate_uuid
+from app.utils.leagues import LeagueUtils
+from sqlalchemy import text
 
 
 class LeagueDAO:
@@ -26,7 +30,7 @@ class LeagueDAO:
 
     @staticmethod
     def get_all_league_info_by_team(team_id: int, active: bool = True) -> list[LeagueInfo]:
-        league_info: LeagueInfo = LeagueInfo.query.filter_by(team_id=team_id, is_active=True).all()
+        league_info: LeagueInfo = LeagueInfo.query.filter_by(team_id=team_id, is_active=active).all()
         return league_info if league_info else []
 
     @staticmethod
@@ -85,3 +89,41 @@ class LeagueDAO:
     def rollback_league(league: UserLeague) -> None:
         UserLeague.query.filter_by(id=league.id).delete()
         db.session.commit()
+
+    @staticmethod
+    def get_paginated_my_leagues(user_id: int, search_obj: list[dict], page: int = 1, size: int = 2) -> dict:
+        filters: list = [f'"{User.__tablename__}".id = {user_id}']
+
+        if search_obj:
+            search_filters = LeagueUtils.create_search_filters(search_obj, user_id=user_id)
+            filters.extend(search_filters)
+
+        query = db.session.query(LeagueInfo, UserLeague, UserTeam, User)\
+            .join(UserLeague, UserLeague.id == LeagueInfo.league_id)\
+            .join(UserTeam, UserTeam.id == LeagueInfo.team_id)\
+            .join(User, User.id == LeagueInfo.user_id)\
+            .filter(text(''.join(filters)))
+
+        result = query.paginate(page=page, per_page=size)
+
+        data = []
+        for row in result.items:
+            li, ul, ut, u = row
+            data.append(
+                {
+                    'active': ul.is_active,
+                    'league_name': ul.name,
+                    'type': ul.league_type,
+                    'team': ut.name,
+                    'rank': li.team_rank,
+                    'owner': ul.owner == user_id
+                }
+            )
+
+        return {
+            "data": data,
+            "total": result.total,
+            "total_pages": result.pages,
+            "page": result.page,
+            "size": result.per_page
+        }

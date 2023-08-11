@@ -3,7 +3,7 @@ from flask.views import MethodView
 from flask_jwt_extended import jwt_required
 from flask_cors import cross_origin
 from app.schemas.leagues import LeagueSchema, JoinLeagueSchema, TransferLeagueOwnershipSchema, LeagueGetSchema, \
-    LeagueGetResponse, CreateLeagueQuerySchema
+    LeagueGetResponse, CreateLeagueQuerySchema, MyLeaguesQuerySchema, MyLeaguesPostSchema, MyLeaguesResponseSchema
 from app.schemas.util import PostResponseSuccessSchema
 from app.service.leagues import LeagueService
 from app.utils.common_utils import fetch_user_from_jwt
@@ -75,3 +75,19 @@ class TransferLeagueOwnership(MethodView):
         email = fetch_user_from_jwt()
 
         return league_service.transfer_league_ownership(league_name, email, new_owner)
+
+
+@blp.route('/my-leagues')
+class MyLeagues(MethodView):
+    @cross_origin()
+    @jwt_required()
+    @blp.arguments(MyLeaguesPostSchema)
+    @blp.arguments(MyLeaguesQuerySchema, location='query')
+    @blp.response(200, MyLeaguesResponseSchema)
+    def post(self, payload: dict, query_args: dict):
+        email = fetch_user_from_jwt()
+        filter_data = payload.get('filter_data')
+        size = query_args.get('size')
+        page = query_args.get('page')
+
+        return league_service.get_my_leagues(email, filter_data, page, size)

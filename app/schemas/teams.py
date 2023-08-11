@@ -20,9 +20,9 @@ class TeamPlayersSchema(Schema):
 
 class TeamSchema(Schema):
     team_name = fields.Str(required=True)
-    players = fields.List(fields.Nested(TeamPlayersSchema))
+    players = fields.List(fields.Nested(TeamPlayersSchema))  # type: ignore
 
 
 class TeamResponseSchema(Schema):
     team_name = fields.Str(required=True, attribute='name')
-    players = fields.List(fields.Nested(TeamPlayersSchema))
+    players = fields.List(fields.Nested(TeamPlayersSchema))  # type: ignore

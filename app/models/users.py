@@ -11,7 +11,7 @@ class User(db.Model):
     password = db.Column(db.String(256), nullable=False)
 
     def __repr__(self):
-        return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+        return f"User('{self.first_name}', '{self.email}', '{self.image_file}')"
 
     def save(self):
         db.session.add(self)

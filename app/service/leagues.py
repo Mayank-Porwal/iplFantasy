@@ -118,3 +118,10 @@ class LeagueService:
 
             abort(403, message=f"League's ownership can be modified by its owner only.")
         abort(403, message=f'The league you are trying to access does not exist.')
+
+    def get_my_leagues(self, email: str, search_obj: list[dict], page: int, size: int) -> list[dict] | dict:
+        user: User = self.user_dao.get_user_by_email(email)
+        if not user:
+            abort(403, message=f'User with email: {email} does not exist')
+
+        return self.league_dao.get_paginated_my_leagues(user.id, search_obj, page, size)

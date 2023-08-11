@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, ValidationError
 
 
 class LeagueSchema(Schema):
@@ -31,3 +31,43 @@ class LeagueGetResponse(Schema):
 
 class CreateLeagueQuerySchema(Schema):
     team_name = fields.Str()
+
+
+class MyLeaguesQuerySchema(Schema):
+    page = fields.Int(required=True)
+    size = fields.Int(required=True)
+
+
+class FilterDataValueField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if isinstance(value, str) or isinstance(value, bool):
+            return value
+        else:
+            raise ValidationError('value should be of type str or boolean')
+
+
+class MyLeaguesFilterDataSchema(Schema):
+    field = fields.Str(required=True)
+    operator = fields.Str(required=True)
+    value = FilterDataValueField(required=True)
+
+
+class MyLeaguesPostSchema(Schema):
+    filter_data = fields.List(fields.Nested(MyLeaguesFilterDataSchema))  # type: ignore
+
+
+class MyLeaguesDataResponseSchema(Schema):
+    active = fields.Bool(required=True)
+    league_name = fields.Str(required=True)
+    type = fields.Str(required=True)
+    team = fields.Str(required=True)
+    rank = fields.Int(required=True)
+    owner = fields.Bool(required=True)
+
+
+class MyLeaguesResponseSchema(Schema):
+    data = fields.List(fields.Nested(MyLeaguesDataResponseSchema), required=True)  # type: ignore
+    total = fields.Int(required=True)
+    total_pages = fields.Int(required=True)
+    page = fields.Int(required=True)
+    size = fields.Int(required=True)
