@@ -1,3 +1,5 @@
+import sqlalchemy.orm
+
 from db import db, conn
 from app.models.leagues import UserLeague, LeagueInfo
 from app.models.teams import UserTeam
@@ -91,39 +93,18 @@ class LeagueDAO:
         db.session.commit()
 
     @staticmethod
-    def get_paginated_my_leagues(user_id: int, search_obj: list[dict], page: int = 1, size: int = 2) -> dict:
+    def get_paginated_my_leagues(user_id: int, search_obj: list[dict], page: int = 1, size: int = 2) -> \
+            sqlalchemy.orm.Query:
         filters: list = [f'"{User.__tablename__}".id = {user_id}']
 
         if search_obj:
-            search_filters = LeagueUtils.create_search_filters(search_obj, user_id=user_id)
+            search_filters: list = LeagueUtils.create_search_filters(search_obj, user_id=user_id)
             filters.extend(search_filters)
 
-        query = db.session.query(LeagueInfo, UserLeague, UserTeam, User)\
+        query: sqlalchemy.orm.Query = db.session.query(LeagueInfo, UserLeague, UserTeam, User)\
             .join(UserLeague, UserLeague.id == LeagueInfo.league_id)\
             .join(UserTeam, UserTeam.id == LeagueInfo.team_id)\
             .join(User, User.id == LeagueInfo.user_id)\
             .filter(text(''.join(filters)))
 
-        result = query.paginate(page=page, per_page=size)
-
-        data = []
-        for row in result.items:
-            li, ul, ut, u = row
-            data.append(
-                {
-                    'active': ul.is_active,
-                    'league_name': ul.name,
-                    'type': ul.league_type,
-                    'team': ut.name,
-                    'rank': li.team_rank,
-                    'owner': ul.owner == user_id
-                }
-            )
-
-        return {
-            "data": data,
-            "total": result.total,
-            "total_pages": result.pages,
-            "page": result.page,
-            "size": result.per_page
-        }
+        return query.paginate(page=page, per_page=size)
