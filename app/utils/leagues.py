@@ -1,6 +1,5 @@
 from enum import Enum
 from flask_smorest import abort
-from app.models.leagues import UserLeague
 
 
 class LeagueType(Enum):
@@ -22,6 +21,8 @@ class MyLeaguesAllowedFilterFields:
 class LeagueUtils:
     @staticmethod
     def create_search_filters(search_obj: list[dict], user_id: int = None) -> list | dict:
+        from app.models.leagues import UserLeague
+
         filters: list = []
 
         for obj in search_obj:

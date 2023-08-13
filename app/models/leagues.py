@@ -1,6 +1,6 @@
 from datetime import datetime
 from db import db
-from util import LeagueType
+from app.utils.leagues import LeagueType
 
 
 class UserLeague(db.Model):
