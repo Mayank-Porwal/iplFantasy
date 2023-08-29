@@ -1,12 +1,15 @@
-import pandas as pd
 from flask_smorest import abort
 from app.models.users import User
 from app.models.teams import UserTeam
+from app.models.snapshot import Snapshot
+from app.models.match import Match
 from app.dao.leagues import LeagueDAO
 from app.dao.users import UserDAO
 from app.dao.teams import TeamDAO
 from app.dao.players import PlayerDAO
-from app.utils.teams import get_player_object
+from app.dao.snapshot import SnapshotDAO
+from app.dao.match import MatchDAO
+from app.utils.teams import TeamUtils
 
 
 class TeamService:
@@ -15,8 +18,11 @@ class TeamService:
         self.user_dao = UserDAO
         self.league_dao = LeagueDAO
         self.player_dao = PlayerDAO
+        self.snapshot_dao = SnapshotDAO
+        self.match_dao = MatchDAO
+        self.utils = TeamUtils()
 
-    def create_team(self, team_name: str, players: dict, email: str) -> dict:
+    def create_team(self, team_name: str, email: str) -> dict:
         user: User = self.user_dao.get_user_by_email(email)
         if not user:
             abort(403, message=f'User with email: {email} does not exist')
@@ -26,45 +32,82 @@ class TeamService:
             if team.user_id == user.id:
                 abort(409, message=f'{team_name} already exists')
 
-        self.team_dao.create_team(team_name, players, user.id)
+        self.team_dao.create_team(team_name, user.id)
         return {'message': 'Successfully created the team.'}
 
-    def delete_team(self, team_name: str, email: str) -> dict:
+    def delete_team(self, team_id: int, email: str) -> dict:
         user: User = self.user_dao.get_user_by_email(email)
         if not user:
             abort(403, message=f'User with email: {email} does not exist')
 
-        team: UserTeam = self.team_dao.get_team_by_name(team_name)
+        team: UserTeam = self.team_dao.get_team_by_id(team_id)
         if team:
             if team.user_id == user.id:
-                league_info: list = self.league_dao.get_all_league_info_by_team(team.id)
+                league_info: list[Snapshot] = self.snapshot_dao.get_all_league_info_by_team(team.id)
                 self.team_dao.delete_team(league_info, team)
-                return {'message': f'{team_name} deleted successfully.'}
+                return {'message': f'{team.name} deleted successfully.'}
 
             abort(403, message='Team can be deleted by its owner only')
         abort(403, message='The team you are trying to delete does not exist')
 
-    def get_team_details(self, team_name: str, email: str) -> list[dict] | dict:
+    def edit_team(self, team_id: int, email: str, players: dict, substitutions: int) -> dict:
         user: User = self.user_dao.get_user_by_email(email)
         if not user:
             abort(403, message=f'User with email: {email} does not exist')
 
-        team: UserTeam = self.team_dao.get_team_by_name(team_name)
+        team: UserTeam = self.team_dao.get_team_by_id(team_id)
+        if team:
+            if team.user_id == user.id:
+                match: Match = self.match_dao.get_current_match_id_by_status()
+                league_info: Snapshot = self.snapshot_dao.get_league_info_by_team_id(team.id, match.id)
+
+                if league_info:
+                    self.team_dao.edit_team(team, players)
+                    self.snapshot_dao.set_substitutions(substitutions, league_info)
+                    return {'message': f'{team.name} saved successfully.'}
+                abort(404, message='No association of team found')
+
+            abort(403, message='Team can be edited by its owner only')
+        abort(403, message='The team you are trying to edit does not exist')
+
+    def get_team_details(self, team_id: int, email: str) -> list[dict] | dict:
+        user: User = self.user_dao.get_user_by_email(email)
+        if not user:
+            abort(403, message=f'User with email: {email} does not exist')
+
+        team: UserTeam = self.team_dao.get_team_by_id(team_id)
+        match_id: int = MatchDAO.get_current_match_id_by_status().id
+        league_info: Snapshot = SnapshotDAO.get_league_info_by_team_id(team_id, match_id)
+        user_league_info: Snapshot = SnapshotDAO.get_league_info_for_user(league_info.league_id, user.id, match_id)
+        is_member: bool = False
+
         if team:
             if team.user_id != user.id:
-                abort(403, message=f'You are not the owner of team: {team_name}.')
+                if not user_league_info:
+                    abort(403, message=f"You can't view this team")
+                is_member = True
         else:
-            abort(404, message='Team not found.')
+            abort(404, message='Team not found')
 
-        player_ids = [player['id'] for player in team.players]
-        players_list = self.player_dao.get_list_of_players(player_ids)
-        if players_list:
-            players_df = pd.DataFrame([get_player_object(player) for player in players_list])
-            team_df = pd.DataFrame(team.players)
-            final_df = players_df.merge(team_df, on='id')
-            return final_df.to_dict('records')
+        last_submitted_team: list = self.utils.create_team_players_dict(league_info.team_snapshot) if (
+            league_info.team_snapshot) else []
 
-        abort(404, message='No players found in the team.')
+        if is_member:
+            draft_team: list = last_submitted_team
+        else:
+            draft_team: list = self.utils.create_team_players_dict(team.draft_players) if team.draft_players else []
+
+        response = {
+            'id': team.id,
+            'name': team.name,
+            'substitutions': league_info.remaining_substitutes,
+            'points': league_info.cumulative_points,
+            'rank': league_info.rank,
+            'draft_team': draft_team,
+            'last_submitted_team': last_submitted_team
+        }
+
+        return response
 
     def get_all_teams_for_user(self, email: str) -> list[UserTeam] | dict:
         user: User = self.user_dao.get_user_by_email(email)

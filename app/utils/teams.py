@@ -1,3 +1,10 @@
+import pandas as pd
+from flask_smorest import abort
+from app.dao.players import PlayerDAO
+from app.dao.ipl_teams import IplTeamsDAO
+from app.utils.players import PlayerUtils, PlayerCategories
+
+
 def get_player_object(player) -> dict:
     return {
         'id': player.id,
@@ -7,3 +14,27 @@ def get_player_object(player) -> dict:
         'img': player.image_file,
         'team': player.ipl_team
     }
+
+
+class TeamUtils:
+    def __init__(self):
+        self.sportsmonk_categories = PlayerCategories.get_sportsmonk_categories_map()
+        self.ipl_teams_map = IplTeamsDAO.get_id_to_team_name_map()
+
+    def create_team_players_dict(self, players):
+        player_ids = [player['id'] for player in players]
+        players_list = PlayerDAO.get_list_of_players(player_ids)
+        if not players_list:
+            abort(422, message='Invalid data from 3rd party APIs')
+
+        output = []
+        for player in players_list:
+            row = PlayerUtils.convert_object_to_dict(player, categories=self.sportsmonk_categories,
+                                                     ipl_teams_map=self.ipl_teams_map)
+            output.append(row)
+
+        players_df = pd.DataFrame(output)
+        team_df = pd.DataFrame(players)
+        final_df = players_df.merge(team_df, on='id')
+
+        return final_df.to_dict('records')

@@ -1,6 +1,7 @@
+from datetime import datetime
 from db import db
 from app.models.teams import UserTeam
-from app.models.leagues import LeagueInfo
+from app.models.snapshot import Snapshot
 
 
 class TeamDAO:
@@ -10,17 +11,30 @@ class TeamDAO:
         return team if team else {}
 
     @staticmethod
-    def create_team(team_name: str, players: dict, user_id: int) -> None:
-        team: UserTeam = UserTeam(name=team_name, players=players, user_id=user_id)
-        team.save()
+    def get_team_by_id(team_id: int, active: bool = True) -> UserTeam:
+        team: UserTeam = UserTeam.query.filter_by(id=team_id, is_active=active).first()
+        return team if team else {}
 
     @staticmethod
-    def delete_team(league_info: list[LeagueInfo], team: UserTeam) -> None:
+    def create_team(team_name: str, user_id: int) -> UserTeam:
+        team: UserTeam = UserTeam(name=team_name, user_id=user_id)
+        team.save()
+
+        return team
+
+    @staticmethod
+    def delete_team(league_info: list[Snapshot], team: UserTeam) -> None:
         if league_info:
             for row in league_info:
                 row.is_active = False
 
         team.is_active = False
+        db.session.commit()
+
+    @staticmethod
+    def edit_team(team: UserTeam, players: dict) -> None:
+        team.draft_players = players
+        team.updated_at = datetime.utcnow()
         db.session.commit()
 
     @staticmethod

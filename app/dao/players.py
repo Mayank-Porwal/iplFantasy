@@ -17,11 +17,21 @@ class PlayerDAO:
         return Player.query.get(player_id)
 
     @staticmethod
-    def get_players_by_category(category: str) -> list[Player]:
-        players: list = Player.query.filter_by(category=category.lower()).all()
+    def get_players_by_category(category_id: list[int]) -> list[Player]:
+        players: list = Player.query.filter(Player.category.in_(category_id)).all()
         return players if players else []
 
     @staticmethod
-    def get_players_by_team(team: str) -> list[Player]:
-        players: list = Player.query.filter_by(ipl_team=team.upper()).all()
+    def get_players_by_team(team_id: int) -> list[Player]:
+        players: list = Player.query.filter_by(ipl_team=team_id).all()
         return players if players else []
+
+    @staticmethod
+    def get_player_by_name(name: str) -> Player:
+        player: Player = Player.query.filter(Player.name.ilike(f'%{name}%')).first()
+        return player if player else {}
+
+    @staticmethod
+    def create_player(player_data: dict) -> None:
+        player: Player = Player(**player_data)
+        player.save()

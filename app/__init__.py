@@ -33,6 +33,7 @@ def create_app():
     db.init_app(app)
     bcrypt.init_app(app)
     cors.init_app(app)
+    app.app_context().push()
 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
@@ -54,12 +55,18 @@ def create_app():
     from app.controller.users import blp as users
     from app.controller.teams import blp as teams
     from app.controller.leagues import blp as leagues
+    from app.controller.tournaments import blp as tournaments
+    from app.controller.match import blp as match
+    from app.controller.ipl_teams import blp as ipl_teams
 
     api = Api(app)
     api.register_blueprint(players)
     api.register_blueprint(users)
     api.register_blueprint(teams)
     api.register_blueprint(leagues)
+    api.register_blueprint(tournaments)
+    api.register_blueprint(match)
+    api.register_blueprint(ipl_teams)
 
     return app
 

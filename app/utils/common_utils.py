@@ -12,3 +12,7 @@ def fetch_user_from_jwt() -> str | dict:
     if not email:
         abort(498, message='invalid token')
     return email
+
+
+def tournament_name() -> str:
+    return 'IPL Fantasy'

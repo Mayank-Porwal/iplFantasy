@@ -21,7 +21,7 @@ class MyLeaguesAllowedFilterFields:
 class LeagueUtils:
     @staticmethod
     def create_search_filters(search_obj: list[dict], user_id: int = None) -> list | dict:
-        from app.models.leagues import UserLeague
+        from app.models.leagues import League
 
         filters: list = []
 
@@ -40,7 +40,7 @@ class LeagueUtils:
                     abort(422, message='Invalid type of value for field="owner". Expected is a boolean.')
 
                 if value:
-                    filters.append(f' and {UserLeague.__tablename__}.owner = {user_id}')
+                    filters.append(f' and {League.__tablename__}.owner = {user_id}')
 
             if field == MyLeaguesAllowedFilterFields.LEAGUE_NAME:
                 sql_operator = '='
@@ -52,9 +52,9 @@ class LeagueUtils:
 
                 if filter_operator == 'contains':
                     sql_operator = 'ilike'
-                    filters.append(f" and {UserLeague.__tablename__}.name {sql_operator} '%{value}%'")
+                    filters.append(f" and {League.__tablename__}.name {sql_operator} '%{value}%'")
                 else:
-                    filters.append(f" and {UserLeague.__tablename__}.name {sql_operator} '{value}'")
+                    filters.append(f" and {League.__tablename__}.name {sql_operator} '{value}'")
 
             if field == MyLeaguesAllowedFilterFields.LEAGUE_TYPE:
                 filter_operator: str = obj.get('operator')
@@ -66,9 +66,9 @@ class LeagueUtils:
                     abort(422, message='Invalid type of value for field="league_name". Expected is a boolean.')
 
                 if value:
-                    filters.append(f" and {UserLeague.__tablename__}.league_type = '{LeagueType.private.name}'")
+                    filters.append(f" and {League.__tablename__}.league_type = '{LeagueType.private.name}'")
                 else:
-                    filters.append(f" and {UserLeague.__tablename__}.league_type = '{LeagueType.public.name}'")
+                    filters.append(f" and {League.__tablename__}.league_type = '{LeagueType.public.name}'")
 
             if field == MyLeaguesAllowedFilterFields.IS_LEAGUE_ACTIVE:
                 filter_operator: str = obj.get('operator')
@@ -79,6 +79,6 @@ class LeagueUtils:
                 if not isinstance(value, bool):
                     abort(422, message='Invalid type of value for field="active". Expected is a boolean.')
 
-                filters.append(f' and {UserLeague.__tablename__}.is_active = {value}')
+                filters.append(f' and {League.__tablename__}.is_active = {value}')
 
         return filters
