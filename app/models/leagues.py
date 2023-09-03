@@ -23,25 +23,3 @@ class League(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
-
-
-# class LeagueInfo(db.Model):
-#     __tablename__ = 'league_info'
-#
-#     id = db.Column(db.Integer, primary_key=True)
-#     league_id = db.Column(db.Integer, db.ForeignKey('user_league.id'))
-#     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-#     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-#     team_id = db.Column(db.Integer, db.ForeignKey('user_team.id'), nullable=False)
-#     team_rank = db.Column(db.Integer, default=-1)
-#     is_active = db.Column(db.Boolean, default=True)
-#     substitutes = db.Column(db.Integer, default=150)
-#     team_points = db.Column(db.Float, default=0.0)
-#
-#     def __repr__(self):
-#         return f"LeagueInfo('User: {self.user_id} joined the league: {self.league_id} with team: {self.team_id}')"
-#
-#     def save(self):
-#         db.session.add(self)
-#         db.session.commit()

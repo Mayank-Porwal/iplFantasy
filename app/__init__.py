@@ -58,6 +58,7 @@ def create_app():
     from app.controller.tournaments import blp as tournaments
     from app.controller.match import blp as match
     from app.controller.ipl_teams import blp as ipl_teams
+    from app.controller.global_rules import blp as global_rules
 
     api = Api(app)
     api.register_blueprint(players)
@@ -67,6 +68,7 @@ def create_app():
     api.register_blueprint(tournaments)
     api.register_blueprint(match)
     api.register_blueprint(ipl_teams)
+    api.register_blueprint(global_rules)
 
     return app
 

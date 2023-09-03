@@ -1,8 +1,17 @@
-class RuleType:
-    BATTING = 'batting'
-    BOWLING = 'bowling'
-    FIELDING = 'fielding'
-    AWARDS = 'awards'
+from typing import Any
+from enum import Enum
+from app.models.rules import Rules
+
+
+class RuleType(Enum):
+    batting = 1
+    bowling = 2
+    fielding = 3
+    awards = 4
+
+    @classmethod
+    def get_rule_type_map(cls) -> dict[int, str]:
+        return {row.value: row.name for row in RuleType}
 
 
 class BattingRules:
@@ -14,6 +23,10 @@ class BattingRules:
     SEVENTY_FIVE_RUN_BONUS = {'label': '75 runs milestone', 'value': 25}
     CENTURY_BONUS = {'label': '100 runs milestone', 'value': 40}
     DUCK = {'label': 'Dismissed on duck', 'value': -15}
+
+    @classmethod
+    def get_all_batting_rules(cls):
+        return [value for name, value in vars(cls).items() if name.isupper()]
 
     def batting_rules_points(self,
                              run: int = 0,
@@ -85,6 +98,10 @@ class BowlingRules:
     MAIDEN_BONUS = {'label': 'Maiden bonus', 'value': 25}
     DOT_BALL_BONUS = {'label': 'Dot-ball bonus', 'value': 1}
 
+    @classmethod
+    def get_all_bowling_rules(cls):
+        return [value for name, value in vars(cls).items() if name.isupper()]
+
     def bowling_rules_points(self,
                              wicket: int = 0,
                              three: int = 0,
@@ -138,6 +155,10 @@ class FieldingRules:
     RUN_OUT_BONUS = {'label': 'Run-Out bonus', 'value': 15}
     STUMPING_BONUS = {'label': 'Stumping bonus', 'value': 15}
 
+    @classmethod
+    def get_all_fielding_rules(cls):
+        return [value for name, value in vars(cls).items() if name.isupper()]
+
     def fielding_rules_points(self,
                               catch: int = 0,
                               run_out: int = 0,
@@ -169,6 +190,10 @@ class AwardRules:
     MAN_OF_THE_MATCH_BONUS = {'label': 'Man of the match bonus', 'value': 50}
     PREDICTION_BONUS = {'label': 'Prediction Bonus', 'value': 50}
 
+    @classmethod
+    def get_all_award_rules(cls):
+        return [value for name, value in vars(cls).items() if name.isupper()]
+
     def award_rules_points(self,
                            mom: int = 0,
                            prediction: int = 0
@@ -189,18 +214,14 @@ class AwardRules:
         ]
 
 
-class Rule:
-    def __init__(self):
-        self.rule_type = RuleType()
-        self.batting_rules = BattingRules()
-        self.bowling_rules = BowlingRules()
-        self.fielding_rules = FieldingRules()
-        self.award_rules = AwardRules()
+class RulesUtil:
+    @staticmethod
+    def convert_object_to_dict(rule: Rules) -> dict[str, Any]:
+        rule_type = RuleType.get_rule_type_map()
 
-    def get_all_rules(self) -> list[dict]:
-        all_rules: list[dict] = self.batting_rules.batting_rules_points()
-        all_rules.extend(self.bowling_rules.bowling_rules_points())
-        all_rules.extend(self.fielding_rules.fielding_rules_points())
-        all_rules.extend(self.award_rules.award_rules_points())
-
-        return all_rules
+        return {
+            'id': rule.id,
+            'type': rule_type[rule.type],
+            'rule': rule.rule,
+            'value': rule.value
+        }

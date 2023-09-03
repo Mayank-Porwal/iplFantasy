@@ -14,8 +14,8 @@ class IplTeamsDAO:
 
     @staticmethod
     def get_id_to_team_name_map() -> dict[int, str]:
-        ipl_teams: list[tuple] = IplTeams.query.with_entities(IplTeams.id, IplTeams.code).all()
-        return {index: code for index, code in ipl_teams}
+        ipl_teams: list[tuple] = IplTeams.query.with_entities(IplTeams.id, IplTeams.image).all()
+        return {index: image for index, image in ipl_teams}
 
     @staticmethod
     def get_id_from_team_name(name: str) -> int:
