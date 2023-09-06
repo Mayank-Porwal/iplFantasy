@@ -18,10 +18,10 @@ def get_player_object(player) -> dict:
 
 class TeamUtils:
     def __init__(self):
-        self.sportsmonk_categories = PlayerCategories.get_sportsmonk_categories_map()
-        self.ipl_teams_map = IplTeamsDAO.get_id_to_team_name_map()
+        pass
 
-    def create_team_players_dict(self, players):
+    @staticmethod
+    def create_team_players_dict(players):
         player_ids = [player['id'] for player in players]
         players_list = PlayerDAO.get_list_of_players(player_ids)
         if not players_list:
@@ -29,8 +29,7 @@ class TeamUtils:
 
         output = []
         for player in players_list:
-            row = PlayerUtils.convert_object_to_dict(player, categories=self.sportsmonk_categories,
-                                                     ipl_teams_map=self.ipl_teams_map)
+            row = PlayerUtils.convert_object_to_dict(player)
             output.append(row)
 
         players_df = pd.DataFrame(output)

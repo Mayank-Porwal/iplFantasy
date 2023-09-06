@@ -20,7 +20,6 @@ class TeamService:
         self.player_dao = PlayerDAO
         self.snapshot_dao = SnapshotDAO
         self.match_dao = MatchDAO
-        self.utils = TeamUtils()
 
     def create_team(self, team_name: str, email: str) -> dict:
         user: User = self.user_dao.get_user_by_email(email)
@@ -89,13 +88,13 @@ class TeamService:
         else:
             abort(404, message='Team not found')
 
-        last_submitted_team: list = self.utils.create_team_players_dict(league_info.team_snapshot) if (
+        last_submitted_team: list = TeamUtils.create_team_players_dict(league_info.team_snapshot) if (
             league_info.team_snapshot) else []
 
         if is_member:
             draft_team: list = last_submitted_team
         else:
-            draft_team: list = self.utils.create_team_players_dict(team.draft_players) if team.draft_players else []
+            draft_team: list = TeamUtils.create_team_players_dict(team.draft_players) if team.draft_players else []
 
         response = {
             'id': team.id,

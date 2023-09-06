@@ -9,8 +9,6 @@ from app.utils.players import PlayerCategories, PlayerUtils
 class PlayerService:
     def __init__(self) -> None:
         self.dao = PlayerDAO
-        self.sportsmonk_categories = PlayerCategories.get_sportsmonk_categories_map()
-        self.ipl_teams_map = IplTeamsDAO.get_id_to_team_name_map()
 
     def get_all_players(self) -> list[dict[str, Any]] | dict:
         players: list[Player] = self.dao.get_all_players()
@@ -19,10 +17,7 @@ class PlayerService:
 
         output = []
         for player in players:
-            row = PlayerUtils.convert_object_to_dict(player,
-                                                     categories=self.sportsmonk_categories,
-                                                     ipl_teams_map=self.ipl_teams_map
-                                                     )
+            row = PlayerUtils.convert_object_to_dict(player)
             output.append(row)
 
         return output
@@ -32,10 +27,7 @@ class PlayerService:
         if not player:
             abort(404, message='Player not found.')
 
-        return PlayerUtils.convert_object_to_dict(player,
-                                                  categories=self.sportsmonk_categories,
-                                                  ipl_teams_map=self.ipl_teams_map
-                                                  )
+        return PlayerUtils.convert_object_to_dict(player)
 
     def get_all_players_by_category(self, category: str) -> list[dict[str, Any]] | dict:
         if category.lower() not in PlayerCategories.get_all_categories():
@@ -48,10 +40,7 @@ class PlayerService:
 
         output = []
         for player in players:
-            row = PlayerUtils.convert_object_to_dict(player,
-                                                     categories=self.sportsmonk_categories,
-                                                     ipl_teams_map=self.ipl_teams_map
-                                                     )
+            row = PlayerUtils.convert_object_to_dict(player)
             output.append(row)
 
         return output
@@ -65,10 +54,7 @@ class PlayerService:
 
         output = []
         for player in players:
-            row = PlayerUtils.convert_object_to_dict(player,
-                                                     categories=self.sportsmonk_categories,
-                                                     ipl_teams_map=self.ipl_teams_map
-                                                     )
+            row = PlayerUtils.convert_object_to_dict(player)
             output.append(row)
 
         return output

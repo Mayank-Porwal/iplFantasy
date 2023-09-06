@@ -1,5 +1,6 @@
 from typing import Any
 from app.models.player import Player
+from app.dao.ipl_teams import IplTeamsDAO
 
 
 class PlayerCategories:
@@ -35,9 +36,10 @@ class PlayerCategories:
 
 class PlayerUtils:
     @staticmethod
-    def convert_object_to_dict(player: Player, **kwargs) -> dict[str, Any]:
-        categories = kwargs.get('categories')
-        ipl_teams_map = kwargs.get('ipl_teams_map')
+    def convert_object_to_dict(player: Player) -> dict[str, Any]:
+        categories = PlayerCategories.get_sportsmonk_categories_map()
+        ipl_teams_name_map = IplTeamsDAO.get_id_to_team_name_map()
+        ipl_teams_img_map = IplTeamsDAO.get_team_logo_to_team_id_map()
 
         return {
             'cap': player.cap,
@@ -45,5 +47,6 @@ class PlayerUtils:
             'id': player.id,
             'image_file': player.image_file,
             'name': player.name,
-            'ipl_team': ipl_teams_map[player.ipl_team] if ipl_teams_map else player.ipl_team
+            'ipl_team': ipl_teams_name_map[player.ipl_team] if ipl_teams_name_map else player.ipl_team,
+            'ipl_team_img': ipl_teams_img_map[player.ipl_team] if ipl_teams_img_map else ''
         }

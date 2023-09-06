@@ -8,6 +8,7 @@ class PlayerResponseSchema(Schema):
     category = fields.Str(required=True)
     cap = fields.Int(required=True)
     img = fields.Str(required=True, attribute='image_file')
+    team_img = fields.Str(required=True, attribute='ipl_team_img')
 
 
 class PlayerByCategoryQuerySchema(Schema):
