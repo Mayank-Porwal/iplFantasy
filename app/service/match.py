@@ -1,8 +1,10 @@
 import requests
 from flask_smorest import abort
 from app.dao.match import MatchDAO
+from app.dao.players import PlayerDAO
 from app.utils.sportsmonk import SportsMonkConstants
 from app.utils.match import MatchStatus
+from app.utils.players import PlayerUtils
 
 
 class MatchService:
@@ -47,3 +49,36 @@ class MatchService:
                 self.dao.create_fixture(fixture_data)
 
         return {'message': 'Created all fixtures successfully'}
+
+    def get_lineup_for_a_match(self):
+        match_id = self.dao.get_current_match_id_by_status().id
+        params = {
+            'api_token': SportsMonkConstants.API_KEY,
+            'include': 'lineup'
+        }
+
+        url: str = f'{SportsMonkConstants.FIXTURE_URL}/{match_id}'  # TODO: Change to livescores api
+        data: dict = requests.get(url=url, params=params).json().get('data')
+
+        if not data:
+            abort(404, message='Data not found')
+
+        playing_team_ids = [data['localteam_id'], data['visitorteam_id']]
+        squad = PlayerDAO.get_players_by_team(playing_team_ids)
+
+        lineup: list[dict] = data.get('lineup')
+        if not lineup:
+            abort(404, message='Lineup not available yet. Please try later.')
+
+        player_ids: list[int] = [row['id'] for row in lineup]
+
+        output = []
+        for player in squad:
+            row = PlayerUtils.convert_object_to_dict(player)
+            if row['id'] in player_ids:
+                row['playing'] = True
+            else:
+                row['playing'] = False
+            output.append(row)
+
+        return output

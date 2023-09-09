@@ -22,8 +22,13 @@ class PlayerDAO:
         return players if players else []
 
     @staticmethod
-    def get_players_by_team(team_id: int) -> list[Player]:
-        players: list = Player.query.filter_by(ipl_team=team_id).all()
+    def get_players_by_team(team_id: int | list) -> list[Player]:
+        players = None
+        if isinstance(team_id, list):
+            players = Player.query.filter(Player.ipl_team.in_(team_id)).all()
+        elif isinstance(team_id, int):
+            players = Player.query.filter_by(ipl_team=team_id).all()
+
         return players if players else []
 
     @staticmethod
