@@ -163,6 +163,7 @@ class LeagueService:
                         'league_name': ul.name,
                         'type': ul.league_type.name,
                         'team': ut.name,
+                        'team_id': ut.id,
                         'rank': li.rank,
                         'owner': ul.owner == user.id
                     }

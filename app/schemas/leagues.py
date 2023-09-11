@@ -69,6 +69,7 @@ class MyLeaguesDataResponseSchema(Schema):
     team = fields.Str(required=True)
     rank = fields.Int(required=True)
     owner = fields.Bool(required=True)
+    team_id = fields.Int(required=True)
 
 
 class MyLeaguesResponseSchema(Schema):

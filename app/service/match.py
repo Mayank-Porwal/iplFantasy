@@ -50,7 +50,7 @@ class MatchService:
 
         return {'message': 'Created all fixtures successfully'}
 
-    def get_lineup_for_a_match(self):
+    def get_lineup_for_a_match(self) -> list[dict] | dict:
         match_id = self.dao.get_current_match_id_by_status().id
         params = {
             'api_token': SportsMonkConstants.API_KEY,

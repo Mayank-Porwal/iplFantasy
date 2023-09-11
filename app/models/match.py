@@ -11,7 +11,6 @@ class Match(db.Model):
     venue_id = db.Column(db.Integer, nullable=False)
     schedule = db.Column(db.DateTime, nullable=False)
     status = db.Column(db.Integer, default=0)
-    # lineup = db.Column(db.JSON)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
