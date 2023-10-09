@@ -10,6 +10,7 @@ class GetTeamPlayersResponseSchema(Schema):
     img = fields.Str(required=True, attribute='image_file')
     captain = fields.Bool(default=False)
     vice_captain = fields.Bool(default=False)
+    team_img = fields.Str(required=True, attribute='ipl_team_img')
 
 
 class GetTeamResponseSchema(Schema):
