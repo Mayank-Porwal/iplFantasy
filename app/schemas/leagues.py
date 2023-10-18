@@ -29,13 +29,21 @@ class TransferLeagueOwnershipSchema(Schema):
     new_owner = fields.Str(required=True)
 
 
-class LeagueGetResponse(Schema):
+class LeaguePlayersResponse(Schema):
     rank = fields.Int(required=True)
     team_id = fields.Int(required=True)
     team_name = fields.Str(required=True)
     team_owner = fields.Str(required=True)
     remaining_subs = fields.Int(required=True)
     points = fields.Float(required=True)
+
+
+class LeagueGetResponse(Schema):
+    league_id = fields.Int(required=True)
+    league_name = fields.Str(required=True)
+    owner = fields.Int(required=True)
+    code = fields.Str(required=True)
+    league_players = fields.List(fields.Nested(LeaguePlayersResponse), required=True)  # type: ignore
 
 
 class MyLeaguesQuerySchema(Schema):

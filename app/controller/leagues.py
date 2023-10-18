@@ -19,7 +19,7 @@ class UserLeague(MethodView):
     @cross_origin()
     @jwt_required()
     @blp.arguments(LeagueGetSchema, location='query')
-    @blp.response(200, LeagueGetResponse(many=True))
+    @blp.response(200, LeagueGetResponse())
     def get(self, query_args: dict):
         league_id = query_args.get('league_id')
         email = fetch_user_from_jwt()

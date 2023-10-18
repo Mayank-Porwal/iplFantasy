@@ -107,16 +107,23 @@ class LeagueService:
         if not league:
             abort(403, message='League does not exist')
 
+        output = {
+            'league_id': league.id,
+            'league_name': league.name,
+            'owner': league.owner,
+            'code': league.join_code if league.join_code else ''
+        }
+
         match_id: int = MatchDAO.get_current_match_id_by_status().id
         league_info: Snapshot = self.snapshot_dao.get_league_info_for_user(league.id, user.id, match_id)
 
-        output = []
+        league_players = []
         if league_info or league.league_type == LeagueType.public.name:
             result = self.league_dao.get_league_details(league_id, match_id)
 
             for row in result:
                 sn, l, ut, u = row
-                output.append({
+                league_players.append({
                     'rank': sn.rank,
                     'team_id': ut.id,
                     'team_name': ut.name,
@@ -125,6 +132,7 @@ class LeagueService:
                     'points': sn.cumulative_points
                 })
 
+            output['league_players'] = league_players
             return output
         abort(403, message='Join the league to view the details.')
 
