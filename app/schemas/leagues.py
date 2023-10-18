@@ -70,6 +70,8 @@ class MyLeaguesDataResponseSchema(Schema):
     rank = fields.Int(required=True)
     owner = fields.Bool(required=True)
     team_id = fields.Int(required=True)
+    remaining_subs = fields.Int(required=True)
+    points = fields.Float(required=True)
 
 
 class MyLeaguesResponseSchema(Schema):

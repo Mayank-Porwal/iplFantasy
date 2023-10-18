@@ -162,10 +162,12 @@ class LeagueService:
                         'league_id': ul.id,
                         'league_name': ul.name,
                         'type': ul.league_type.name,
-                        'team': ut.name,
+                        'team_name': ut.name,
                         'team_id': ut.id,
                         'rank': li.rank,
-                        'owner': ul.owner == user.id
+                        'owner': ul.owner == user.id,
+                        'remaining_subs': li.remaining_substitutes,
+                        'points': li.cumulative_points
                     }
                 )
 
