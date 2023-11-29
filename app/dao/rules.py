@@ -9,6 +9,11 @@ class GlobalRulesDAO:
         rules: list = Rules.query.all()
         return rules if rules else []
 
+    @staticmethod
+    def get_row_count_of_global_rules() -> int:
+        rows: int = Rules.query.count()
+        return rows
+
 
 class LeagueRulesDAO:
     @staticmethod

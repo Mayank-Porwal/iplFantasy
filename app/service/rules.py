@@ -12,8 +12,10 @@ class GlobalRulesService:
     def __init__(self):
         self.dao = GlobalRulesDAO
 
-    @staticmethod
-    def create_global_fantasy_rules() -> dict[str, str]:
+    def create_global_fantasy_rules(self) -> dict[str, str] | None:
+        if self.dao.get_row_count_of_global_rules() > 0:
+            return
+
         batting_rules: list[dict] = BattingRules.get_all_batting_rules()
         bowling_rules: list[dict] = BowlingRules.get_all_bowling_rules()
         fielding_rules: list[dict] = FieldingRules.get_all_fielding_rules()
@@ -89,7 +91,7 @@ class LeagueRulesService:
                 {
                     'id': league_rule.id,
                     'rule': global_rule.rule,
-                    'type': global_rule.type,
+                    'type': RuleType(global_rule.type).name,
                     'value': league_rule.value,
                     'is_active': league_rule.is_active
                 }
