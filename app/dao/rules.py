@@ -26,7 +26,6 @@ class LeagueRulesDAO:
     @staticmethod
     def update_league_rules(league_id: int, rule_id: int, value: int, is_active: bool) -> None:
         league_rule: LeagueRules = LeagueRules.query.filter_by(league_id=league_id, rule_id=rule_id).first()
-        print(league_rule.rule_id, league_rule.value)
         if league_rule.value != value:
             league_rule.value = value
 

@@ -47,7 +47,6 @@ class PlayerService:
 
     def get_all_players_by_team(self, team: str) -> list[dict[str, Any]] | dict:
         team_id = IplTeamsDAO.get_id_from_team_name(team)
-        print(f'team_id: {team_id}')
         players = self.dao.get_players_by_team(team_id)
         if not players:
             abort(404, message='Invalid team.')

@@ -58,7 +58,6 @@ class LeagueRulesService:
         self.dao = LeagueRulesDAO
 
     def update_league_rules(self, league_id: int, email: str, rule_data: list[dict[str, int | bool]]) -> dict:
-        print(rule_data)
         league: League = LeagueDAO.get_league_by_id(league_id)
         if not league:
             abort(404, message='League not found')
@@ -71,7 +70,6 @@ class LeagueRulesService:
             abort(403, message='Only owner can choose rules for the league')
 
         for rule in rule_data:
-            print(rule['id'], rule['value'], rule['is_active'])
             self.dao.update_league_rules(league_id, rule['id'], rule['value'], rule['is_active'])
 
         return {'message': 'Updated league rules successfully'}
