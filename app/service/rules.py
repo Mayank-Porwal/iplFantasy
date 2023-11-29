@@ -57,7 +57,8 @@ class LeagueRulesService:
     def __init__(self):
         self.dao = LeagueRulesDAO
 
-    def create_league_rules(self, league_id: int, email: str, rule_data: list[dict[str, int]]) -> dict:
+    def update_league_rules(self, league_id: int, email: str, rule_data: list[dict[str, int | bool]]) -> dict:
+        print(rule_data)
         league: League = LeagueDAO.get_league_by_id(league_id)
         if not league:
             abort(404, message='League not found')
@@ -70,9 +71,10 @@ class LeagueRulesService:
             abort(403, message='Only owner can choose rules for the league')
 
         for rule in rule_data:
-            self.dao.create_league_rules(league_id, rule['id'], rule['value'])
+            print(rule['id'], rule['value'], rule['is_active'])
+            self.dao.update_league_rules(league_id, rule['id'], rule['value'], rule['is_active'])
 
-        return {'message': 'Created league rules successfully'}
+        return {'message': 'Updated league rules successfully'}
 
     def get_league_rules(self, league_id: int, email: str) -> list[dict]:
         league: League = LeagueDAO.get_league_by_id(league_id)
@@ -89,7 +91,7 @@ class LeagueRulesService:
             league_rule, global_rule = row
             result.append(
                 {
-                    'id': league_rule.id,
+                    'id': league_rule.rule_id,
                     'rule': global_rule.rule,
                     'type': RuleType(global_rule.type).name,
                     'value': league_rule.value,

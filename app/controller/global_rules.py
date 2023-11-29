@@ -33,12 +33,12 @@ class LeagueRules(MethodView):
     @jwt_required()
     @blp.arguments(SetLeagueRulesRequestSchema)
     @blp.response(201, PostResponseSuccessSchema)
-    def post(self, payload):
+    def put(self, payload):
         league_id = payload.get('league_id')
         rule_data = payload.get('rule_data')
         email = fetch_user_from_jwt()
 
-        return league_rules_service.create_league_rules(league_id, email, rule_data)
+        return league_rules_service.update_league_rules(league_id, email, rule_data)
 
     @cross_origin()
     @jwt_required()
