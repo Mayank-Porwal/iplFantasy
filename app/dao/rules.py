@@ -38,5 +38,6 @@ class LeagueRulesDAO:
     def get_league_rules(league_id: int) -> list[dict]:
         result: list = (db.session.query(LeagueRules, Rules)
                         .join(Rules, Rules.id == LeagueRules.rule_id)
-                        .filter(LeagueRules.league_id == league_id))
+                        .filter(LeagueRules.league_id == league_id)
+                        .order_by(Rules.id.asc()))
         return result
