@@ -11,7 +11,7 @@ class Rules(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"Rules('{self.league_id}', '{self.rule}')"
+        return f"Rules('{self.id}', '{self.rule}')"
 
     def save(self):
         db.session.add(self)

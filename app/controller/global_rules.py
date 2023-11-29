@@ -4,7 +4,8 @@ from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required
 from app.schemas.util import PostResponseSuccessSchema
 from app.utils.common_utils import fetch_user_from_jwt
-from app.schemas.rules import GlobalRulesResponse, SetLeagueRulesRequestSchema
+from app.schemas.rules import (GlobalRulesResponse, SetLeagueRulesRequestSchema, GetLeagueRulesResponse,
+                               GetLeagueRulesRequestSchema)
 from app.service.rules import GlobalRulesService, LeagueRulesService
 
 blp = Blueprint('Global_Rules', __name__, description='Global Rules related endpoints')
@@ -38,3 +39,12 @@ class LeagueRules(MethodView):
         email = fetch_user_from_jwt()
 
         return league_rules_service.create_league_rules(league_id, email, rule_data)
+
+    @cross_origin()
+    @jwt_required()
+    @blp.arguments(GetLeagueRulesRequestSchema, location='query')
+    @blp.response(200, GetLeagueRulesResponse(many=True))
+    def get(self, query_args: dict):
+        email = fetch_user_from_jwt()
+        league_id = query_args.get('league_id')
+        return league_rules_service.get_league_rules(league_id, email)

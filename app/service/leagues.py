@@ -10,6 +10,7 @@ from app.dao.teams import TeamDAO
 from app.dao.snapshot import SnapshotDAO
 from app.dao.match import MatchDAO
 from app.dao.tournaments import TournamentDAO
+from app.dao.rules import LeagueRulesDAO
 from app.utils.leagues import LeagueType
 
 
@@ -20,6 +21,7 @@ class LeagueService:
         self.team_dao = TeamDAO
         self.snapshot_dao = SnapshotDAO
         self.match_dao = MatchDAO
+        self.league_rules_dao = LeagueRulesDAO
 
     def create_league(self, league_name: str, league_type: str, email: str, team_name: str) -> dict:
         tournament: Tournament = TournamentDAO.get_tournament()
@@ -41,6 +43,9 @@ class LeagueService:
         else:
             league = self.league_dao.create_league(tournament.id, league_name, league_type, owner.id, False)
             joined_league = self.join_league(team_name, email, league.join_code, league.id)
+
+        # Create default rules for this league
+        self.league_rules_dao.create_league_rules(league.id)
 
         return {
             'message': f'Successfully created the {league_type} league.',

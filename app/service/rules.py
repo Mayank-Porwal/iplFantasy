@@ -71,3 +71,28 @@ class LeagueRulesService:
             self.dao.create_league_rules(league_id, rule['id'], rule['value'])
 
         return {'message': 'Created league rules successfully'}
+
+    def get_league_rules(self, league_id: int, email: str) -> list[dict]:
+        league: League = LeagueDAO.get_league_by_id(league_id)
+        if not league:
+            abort(404, message='League not found')
+
+        user: User = UserDAO.get_user_by_email(email)
+        if not user:
+            abort(404, message='User not found')
+
+        result = []
+        rules = self.dao.get_league_rules(league_id)
+        for row in rules:
+            league_rule, global_rule = row
+            result.append(
+                {
+                    'id': league_rule.id,
+                    'rule': global_rule.rule,
+                    'type': global_rule.type,
+                    'value': league_rule.value,
+                    'is_active': league_rule.is_active
+                }
+            )
+
+        return result
