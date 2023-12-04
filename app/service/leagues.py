@@ -191,3 +191,35 @@ class LeagueService:
             "page": paginated_results.page,
             "size": paginated_results.per_page
         }
+
+    def get_public_leagues(self, email: str, search_obj: list[dict], page: int, size: int) -> dict:
+        user: User = self.user_dao.get_user_by_email(email)
+        if not user:
+            abort(403, message=f'User with email: {email} does not exist')
+
+        paginated_results = self.league_dao.get_paginated_public_leagues(search_obj, page, size)
+
+        data = []
+
+        if len(paginated_results.items) > 0:
+            for row in paginated_results.items:
+                ul, u = row
+                data.append(
+                    {
+                        'active': ul.is_active,
+                        'league_id': ul.id,
+                        'league_name': ul.name,
+                        'type': ul.league_type.name,
+                        'owner_id': u.id,
+                        'owner_first_name': u.first_name,
+                        'owner_last_name': u.last_name
+                    }
+                )
+
+        return {
+            "data": data,
+            "total": paginated_results.total,
+            "total_pages": paginated_results.pages,
+            "page": paginated_results.page,
+            "size": paginated_results.per_page
+        }

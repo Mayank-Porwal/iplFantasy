@@ -7,7 +7,7 @@ from app.models.users import User
 from app.models.snapshot import Snapshot
 from app.dao.users import UserDAO
 from app.utils.common_utils import generate_uuid
-from app.utils.leagues import LeagueUtils
+from app.utils.leagues import LeagueUtils, LeagueType
 from sqlalchemy import text
 
 
@@ -85,6 +85,23 @@ class LeagueDAO:
             .join(League, League.id == Snapshot.league_id)\
             .join(UserTeam, UserTeam.id == Snapshot.team_id)\
             .join(User, User.id == Snapshot.user_id)\
+            .filter(text(''.join(filters)))
+
+        print(str(query))
+
+        return query.paginate(page=page, per_page=size)
+
+    @staticmethod
+    def get_paginated_public_leagues(search_obj: list[dict], page: int = 1, size: int = 2) -> \
+            sqlalchemy.orm.Query:
+        filters: list = [f"league.league_type = '{LeagueType.public.name}'"]
+
+        if search_obj:
+            search_filters: list = LeagueUtils.create_search_filters(search_obj)
+            filters.extend(search_filters)
+
+        query: sqlalchemy.orm.Query = db.session.query(League, User) \
+            .join(League, League.owner == User.id) \
             .filter(text(''.join(filters)))
 
         print(str(query))

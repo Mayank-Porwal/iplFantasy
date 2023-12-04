@@ -12,6 +12,8 @@ class MyLeaguesAllowedFilterFields:
     LEAGUE_NAME = 'league_name'
     LEAGUE_TYPE = 'league_type'
     IS_LEAGUE_ACTIVE = 'active'
+    FIRST_NAME = 'owner_first_name'
+    LAST_NAME = 'owner_last_name'
 
     @classmethod
     def get_allowed_filter_fields(cls) -> list:
@@ -22,6 +24,7 @@ class LeagueUtils:
     @staticmethod
     def create_search_filters(search_obj: list[dict], user_id: int = None) -> list | dict:
         from app.models.leagues import League
+        from app.models.users import User
 
         filters: list = []
 
@@ -80,5 +83,31 @@ class LeagueUtils:
                     abort(422, message='Invalid type of value for field="active". Expected is a boolean.')
 
                 filters.append(f' and {League.__tablename__}.is_active = {value}')
+
+            if field == MyLeaguesAllowedFilterFields.FIRST_NAME:
+                filter_operator: str = obj.get('operator')
+                if filter_operator != 'contains':
+                    abort(422, message='Invalid operator for field="first_name" in payload. '
+                                       'Expected is "contains".')
+
+                value: str = obj.get('value')
+                if not isinstance(value, str):
+                    abort(422, message='Invalid type of value for field="owner". Expected is a string.')
+
+                if value:
+                    filters.append(f" and \"{User.__tablename__}\".first_name ilike '%{value}%'")
+
+            if field == MyLeaguesAllowedFilterFields.LAST_NAME:
+                filter_operator: str = obj.get('operator')
+                if filter_operator != 'contains':
+                    abort(422, message='Invalid operator for field="last_name" in payload. '
+                                       'Expected is "contains".')
+
+                value: str = obj.get('value')
+                if not isinstance(value, str):
+                    abort(422, message='Invalid type of value for field="owner". Expected is a string.')
+
+                if value:
+                    filters.append(f" and \"{User.__tablename__}\".last_name ilike '%{value}%'")
 
         return filters

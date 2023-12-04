@@ -5,7 +5,7 @@ from flask_cors import cross_origin
 from app.schemas.leagues import (CreateLeagueRequestSchema, CreateLeagueResponseSchema, JoinLeagueSchema,
                                  TransferLeagueOwnershipSchema, LeagueGetSchema, LeagueGetResponse,
                                  MyLeaguesQuerySchema, MyLeaguesPostSchema, MyLeaguesResponseSchema,
-                                 DeleteLeagueRequestSchema)
+                                 DeleteLeagueRequestSchema, PublicLeaguesResponseSchema)
 from app.schemas.util import PostResponseSuccessSchema
 from app.service.leagues import LeagueService
 from app.utils.common_utils import fetch_user_from_jwt
@@ -92,3 +92,19 @@ class MyLeagues(MethodView):
         page = query_args.get('page')
 
         return league_service.get_my_leagues(email, filter_data, page, size)
+
+
+@blp.route('/public-leagues')
+class PublicLeague(MethodView):
+    @cross_origin()
+    @jwt_required()
+    @blp.arguments(MyLeaguesPostSchema)
+    @blp.arguments(MyLeaguesQuerySchema, location='query')
+    @blp.response(200, PublicLeaguesResponseSchema)
+    def post(self, payload: dict, query_args: dict):
+        email = fetch_user_from_jwt()
+        filter_data = payload.get('filter_data')
+        size = query_args.get('size')
+        page = query_args.get('page')
+
+        return league_service.get_public_leagues(email, filter_data, page, size)

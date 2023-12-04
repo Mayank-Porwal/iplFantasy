@@ -92,3 +92,21 @@ class MyLeaguesResponseSchema(Schema):
 
 class DeleteLeagueRequestSchema(Schema):
     league_id = fields.Int(required=True)
+
+
+class PublicLeaguesDataResponseSchema(Schema):
+    active = fields.Bool(required=True)
+    league_id = fields.Int(required=True)
+    league_name = fields.Str(required=True)
+    type = fields.Str(required=True)
+    owner_id = fields.Int(required=True)
+    owner_first_name = fields.Str(required=True)
+    owner_last_name = fields.Str(required=True)
+
+
+class PublicLeaguesResponseSchema(Schema):
+    data = fields.List(fields.Nested(PublicLeaguesDataResponseSchema), required=True)  # type: ignore
+    total = fields.Int(required=True)
+    total_pages = fields.Int(required=True)
+    page = fields.Int(required=True)
+    size = fields.Int(required=True)
