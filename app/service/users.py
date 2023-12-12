@@ -1,12 +1,19 @@
+import smtplib
+from random import randint
+
 from flask_smorest import abort
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, get_jwt
 from app.models.users import RevokedAccessTokens
+from app.models.otp import Otp
 from app.dao.users import UserDAO
+from app.dao.otp import OtpDAO
+from app.service.email import CreateEmail
 
 
 class UserService:
     def __init__(self) -> None:
         self.dao = UserDAO
+        self.otp_dao = OtpDAO
 
     def register_user(self, dto) -> None:
         user = self.dao.get_user_by_email(dto['email'])
@@ -44,3 +51,38 @@ class UserService:
         revoked_token = RevokedAccessTokens(jti=jti)
         revoked_token.save()
         return {'message': 'Access token has been revoked. User is logged out'}
+
+    def forgot_password(self, email: str) -> dict:
+        user = self.dao.get_user_by_email(email)
+        if not user:
+            abort(404, message='Email not found')
+
+        random_otp = randint(100000, 999999)
+        otp_obj = self.otp_dao.get_otp_by_email(email)
+        if otp_obj:
+            return {'message': 'You already have an active OTP. Please check your mail.'}
+
+        self.otp_dao.delete_otp(email)
+        otp = Otp(email=email, otp=random_otp)
+        otp.save()
+
+        try:
+            CreateEmail.send_email(email,
+                                   subject='Forgot Password',
+                                   text_content=f'OTP: {random_otp}. This is valid for next 10 minutes.')
+            return {'message': f'Successfully sent password reset email to {email}'}
+        except smtplib.SMTPException as e:
+            return {'message': f'Failed with error: {e}'}
+
+    def validate_otp(self, email: str, otp: int) -> int:
+        user = self.dao.get_user_by_email(email)
+        if not user:
+            abort(404, message='Email not found')
+
+        response = self.otp_dao.get_otp_by_email(email)
+        if response:
+            if response.otp == otp:
+                self.otp_dao.delete_otp(email)
+                return 1
+            return 0
+        return -1
