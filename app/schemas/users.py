@@ -14,3 +14,12 @@ class UserLoginSchema(Schema):
     id = fields.Int(dump_only=True)
     email = fields.Str(required=True)
     password = fields.Str(required=True)
+
+
+class ForgetPasswordRequestSchema(Schema):
+    email = fields.Str(required=True)
+
+
+class ValidateOtpRequestSchema(Schema):
+    email = fields.Str(required=True)
+    otp = fields.Int(required=True)
