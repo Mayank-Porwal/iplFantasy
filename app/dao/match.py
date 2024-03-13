@@ -4,7 +4,7 @@ from app.utils.match import MatchStatus
 
 class MatchDAO:
     @staticmethod
-    def get_current_match_id_by_status(status: str = 'NOT_STARTED') -> Match | None:
+    def get_current_match_id_by_status(status: str = 'NS') -> Match | None:
         match: Match = Match.query.filter_by(status=MatchStatus[status.upper()].value)\
             .order_by(Match.schedule.asc())\
             .limit(1).first()

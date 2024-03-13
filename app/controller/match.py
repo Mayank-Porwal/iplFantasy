@@ -23,13 +23,13 @@ class Match(MethodView):
         :return: A success or an error code
         """
         tournament_id = payload.get('tournament_id')
-        return match_service.create_all_fixtures(tournament_id, '2023-03-03', '2023-05-31')
+        return match_service.create_all_fixtures(tournament_id)
 
 
-@blp.route('/current-match-squad')
+@blp.route('/current-match')
 class CurrentMatchPlayers(MethodView):
     @cross_origin()
     @jwt_required()
-    @blp.response(200, PlayingElevenResponseSchema(many=True))
+    @blp.response(200, PlayingElevenResponseSchema)
     def get(self):
         return match_service.get_lineup_for_a_match()

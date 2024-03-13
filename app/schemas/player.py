@@ -11,15 +11,14 @@ class PlayerResponseSchema(Schema):
     team_img = fields.Str(required=True, attribute='ipl_team_img')
 
 
-class PlayingElevenResponseSchema(Schema):
-    id = fields.Int(required=True)
+class LineupResponseSchema(Schema):
     name = fields.Str(required=True)
-    team = fields.Str(required=True, attribute='ipl_team')
-    category = fields.Str(required=True)
-    cap = fields.Int(required=True)
-    img = fields.Str(required=True, attribute='image_file')
-    team_img = fields.Str(required=True, attribute='ipl_team_img')
-    playing = fields.Bool(required=True)
+    players = fields.List(fields.Int(allow_none=True))
+
+
+class PlayingElevenResponseSchema(Schema):
+    teamA = fields.Nested(LineupResponseSchema, required=True)  # type: ignore
+    teamB = fields.Nested(LineupResponseSchema, required=True)  # type: ignore
 
 
 class PlayerByCategoryQuerySchema(Schema):

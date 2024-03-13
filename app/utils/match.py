@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class MatchStatus(Enum):
-    NOT_STARTED = 1
+    NS = 1
     IN_PROGRESS = 2
     FINISHED = 3
     ABANDONED = 4
