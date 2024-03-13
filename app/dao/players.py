@@ -1,4 +1,5 @@
 from app.models.player import Player
+from db import db
 
 
 class PlayerDAO:
@@ -40,3 +41,12 @@ class PlayerDAO:
     def create_player(player_data: dict) -> None:
         player: Player = Player(**player_data)
         player.save()
+
+    @staticmethod
+    def create_all_players(player_data: list[dict]) -> None:
+        if player_data:
+            for row in player_data:
+                player: Player = Player(**row)
+                db.session.add(player)
+
+            db.session.commit()

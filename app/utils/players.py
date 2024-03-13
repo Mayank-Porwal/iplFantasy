@@ -21,7 +21,8 @@ class PlayerCategories:
             3: PlayerCategories.WK,
             2: PlayerCategories.BWL,
             4: PlayerCategories.AR,
-            11: PlayerCategories.AR
+            11: PlayerCategories.AR,
+            8: PlayerCategories.BAT
         }
 
     @classmethod

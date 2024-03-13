@@ -26,3 +26,8 @@ class IplTeamsDAO:
     def get_id_from_team_name(name: str) -> int:
         ipl_team: IplTeams = IplTeams.query.filter_by(code=name.upper()).first()
         return ipl_team.id if ipl_team else -1
+
+    @staticmethod
+    def get_active_ipl_team_ids() -> list[int]:
+        ipl_teams: list = IplTeams.query.filter_by(is_active=True).with_entities(IplTeams.id).all()
+        return [ipl_team_id[0] for ipl_team_id in ipl_teams]

@@ -3,6 +3,7 @@ from flask.views import MethodView
 from flask_jwt_extended import jwt_required
 from flask_cors import cross_origin
 from app.schemas.player import PlayerResponseSchema, PlayerByCategoryQuerySchema, PlayerByTeamQuerySchema
+from app.schemas.util import PostResponseSuccessSchema
 from app.service.players import PlayerService
 
 blp = Blueprint('Players', __name__, description='Player related endpoints')
@@ -16,6 +17,17 @@ class PlayersList(MethodView):
     @blp.response(200, PlayerResponseSchema(many=True))
     def get(self):
         return player_service.get_all_players()
+
+    @cross_origin()
+    @blp.response(201, PostResponseSuccessSchema)
+    def post(self):
+        """
+        This endpoint will populate the player table with all the IPL players before the tournament starts.
+
+        :param payload: A dict
+        :return: A success or an error code
+        """
+        return player_service.save_all_players()
 
 
 @blp.route('/player/<int:player_id>')
