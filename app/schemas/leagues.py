@@ -20,8 +20,8 @@ class LeagueGetSchema(Schema):
 
 class JoinLeagueSchema(Schema):
     team_name = fields.Str(required=True)
-    code = fields.Str()
-    league_id = fields.Int()
+    code = fields.Str(allow_none=True)
+    league_id = fields.Int(allow_none=True)
 
 
 class TransferLeagueOwnershipSchema(Schema):
