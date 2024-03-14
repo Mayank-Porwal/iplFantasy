@@ -59,6 +59,7 @@ def create_app():
     from app.controller.match import blp as match
     from app.controller.ipl_teams import blp as ipl_teams
     from app.controller.global_rules import blp as global_rules
+    from app.controller.prediction import blp as prediction
 
     api = Api(app)
     api.register_blueprint(players)
@@ -69,6 +70,7 @@ def create_app():
     api.register_blueprint(match)
     api.register_blueprint(ipl_teams)
     api.register_blueprint(global_rules)
+    api.register_blueprint(prediction)
 
     return app
 
