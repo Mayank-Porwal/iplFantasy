@@ -13,6 +13,7 @@ class PlayerResponseSchema(Schema):
 
 class LineupResponseSchema(Schema):
     name = fields.Str(required=True)
+    image = fields.Str(required=True)
     players = fields.List(fields.Int(allow_none=True))
 
 

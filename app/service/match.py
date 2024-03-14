@@ -61,13 +61,18 @@ class MatchService:
         url: str = f'{SportsMonkConstants.FIXTURE_URL}/{match.id}'  # TODO: Change to livescores api
         data: dict = requests.get(url=url, params=params).json().get('data')
 
+        home_team = IplTeamsDAO.get_ipl_team_by_id(match.home_team_id)
+        away_team = IplTeamsDAO.get_ipl_team_by_id(match.away_team_id)
+
         output = {
                 'teamA': {
-                    'name': IplTeamsDAO.get_ipl_team_by_id(match.home_team_id).code,
+                    'name': home_team.code,
+                    'image': home_team.image,
                     'players': []
                 },
                 'teamB': {
-                    'name': IplTeamsDAO.get_ipl_team_by_id(match.away_team_id).code,
+                    'name': away_team.code,
+                    'image': away_team.image,
                     'players': []
                 }
             }
