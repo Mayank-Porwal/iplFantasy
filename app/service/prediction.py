@@ -72,4 +72,4 @@ class PredictionService:
         if predicted_team_id:
             predicted_team = IplTeamsDAO.get_ipl_team_by_id(predicted_team_id)
             return {'name': predicted_team.code}
-        return
+        return {'name': None}
