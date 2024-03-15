@@ -20,3 +20,11 @@ class MatchDAO:
     def create_fixture(fixture_data: dict) -> None:
         fixture = Match(**fixture_data)
         fixture.save()
+
+    @staticmethod
+    def get_upcoming_matches_by_status(status: str = 'NS') -> list[Match] | None:
+        match: list[Match] = Match.query.filter_by(status=MatchStatus[status.upper()].value) \
+            .order_by(Match.schedule.asc()) \
+            .limit(4).all()
+
+        return match if match else []

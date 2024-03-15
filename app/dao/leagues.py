@@ -107,3 +107,8 @@ class LeagueDAO:
         print(str(query))
 
         return query.paginate(page=page, per_page=size)
+
+    @staticmethod
+    def get_all_active_leagues(active: bool = True) -> list[League]:
+        leagues: League = League.query.filter_by(is_active=active).all()
+        return leagues if leagues else []

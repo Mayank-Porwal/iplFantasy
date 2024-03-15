@@ -38,3 +38,8 @@ class SnapshotDAO:
         row.remaining_substitutes = substitutions
         row.updated_at = datetime.utcnow()
         db.session.commit()
+
+    @staticmethod
+    def get_all_rows_for_current_match(match_id: int) -> list[Snapshot]:
+        snapshots = Snapshot.query.filter_by(match_id=match_id).all()
+        return snapshots if snapshots else []

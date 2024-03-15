@@ -30,6 +30,6 @@ class Match(MethodView):
 class CurrentMatchPlayers(MethodView):
     @cross_origin()
     @jwt_required()
-    @blp.response(200, PlayingElevenResponseSchema)
+    @blp.response(200, PlayingElevenResponseSchema(many=True))
     def get(self):
         return match_service.get_lineup_for_a_match()

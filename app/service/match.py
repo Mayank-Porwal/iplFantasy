@@ -51,43 +51,50 @@ class MatchService:
         return {'message': 'Created all fixtures successfully'}
 
     def get_lineup_for_a_match(self) -> list[dict] | dict:
-        match = self.dao.get_current_match_id_by_status()
+        matches: list = self.dao.get_upcoming_matches_by_status()
 
         params = {
             'api_token': SportsMonkConstants.API_KEY,
             'include': 'lineup'
         }
 
-        url: str = f'{SportsMonkConstants.FIXTURE_URL}/{match.id}'  # TODO: Change to livescores api
-        data: dict = requests.get(url=url, params=params).json().get('data')
+        output = []
+        for c, match in enumerate(matches):
+            data = {}
+            if c == 0:
+                url: str = f'{SportsMonkConstants.FIXTURE_URL}/{match.id}'  # TODO: Change to livescores api
+                data: dict = requests.get(url=url, params=params).json().get('data')
 
-        home_team = IplTeamsDAO.get_ipl_team_by_id(match.home_team_id)
-        away_team = IplTeamsDAO.get_ipl_team_by_id(match.away_team_id)
+            home_team = IplTeamsDAO.get_ipl_team_by_id(match.home_team_id)
+            away_team = IplTeamsDAO.get_ipl_team_by_id(match.away_team_id)
 
-        output = {
-                'teamA': {
-                    'name': home_team.code,
-                    'image': home_team.image,
-                    'players': []
-                },
-                'teamB': {
-                    'name': away_team.code,
-                    'image': away_team.image,
-                    'players': []
+            result = {
+                    'teamA': {
+                        'name': home_team.code,
+                        'image': home_team.image,
+                        'players': []
+                    },
+                    'teamB': {
+                        'name': away_team.code,
+                        'image': away_team.image,
+                        'players': []
+                    },
+                    'match_time': match.schedule
                 }
-            }
 
-        if not data or not data['lineup']:
-            return output
-        elif data['lineup']:
-            home_team_players, away_team_players = [], []
-            for player in data['lineup']:
-                if player['lineup']['team_id'] == match.home_team_id:
-                    home_team_players.append(player.id)
-                elif player['lineup']['team_id'] == match.away_team_id:
-                    away_team_players.append(player.id)
+            # if not data or not data['lineup']:
+            #     return output
+            if data.get('lineup'):
+                home_team_players, away_team_players = [], []
+                for player in data['lineup']:
+                    if player['lineup']['team_id'] == match.home_team_id:
+                        home_team_players.append(player.id)
+                    elif player['lineup']['team_id'] == match.away_team_id:
+                        away_team_players.append(player.id)
 
-            output['teamA']['players'] = home_team_players
-            output['teamB']['players'] = away_team_players
+                result['teamA']['players'] = home_team_players
+                result['teamB']['players'] = away_team_players
 
-            return output
+            output.append(result)
+
+        return output

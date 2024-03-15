@@ -20,6 +20,7 @@ class LineupResponseSchema(Schema):
 class PlayingElevenResponseSchema(Schema):
     teamA = fields.Nested(LineupResponseSchema, required=True)  # type: ignore
     teamB = fields.Nested(LineupResponseSchema, required=True)  # type: ignore
+    match_time = fields.DateTime(required=True)
 
 
 class PlayerByCategoryQuerySchema(Schema):
