@@ -7,7 +7,7 @@ class Player(db.Model):
     name = db.Column(db.String(50), nullable=False)
     category = db.Column(db.Integer, nullable=False)
     ipl_team = db.Column(db.Integer, nullable=False)
-    cap = db.Column(db.Integer, nullable=False)
+    cap = db.Column(db.Float, nullable=False)
     image_file = db.Column(db.String(256), nullable=False, default='default.jpeg')
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
