@@ -6,7 +6,7 @@ class PlayerResponseSchema(Schema):
     name = fields.Str(required=True)
     team = fields.Str(required=True, attribute='ipl_team')
     category = fields.Str(required=True)
-    cap = fields.Int(required=True)
+    cap = fields.Float(required=True)
     img = fields.Str(required=True, attribute='image_file')
     team_img = fields.Str(required=True, attribute='ipl_team_img')
 
