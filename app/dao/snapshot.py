@@ -43,3 +43,8 @@ class SnapshotDAO:
     def get_all_rows_for_current_match(match_id: int) -> list[Snapshot]:
         snapshots = Snapshot.query.filter_by(match_id=match_id).all()
         return snapshots if snapshots else []
+
+    @staticmethod
+    def get_count_of_user_in_snapshot(league_id: int, user_id: int, active: bool = True) -> int:
+        cnt: int = Snapshot.query.filter_by(league_id=league_id, user_id=user_id, is_active=active).count()
+        return cnt

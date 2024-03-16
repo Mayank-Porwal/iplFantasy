@@ -188,7 +188,8 @@ class FieldingRules:
 
 class AwardRules:
     MAN_OF_THE_MATCH_BONUS = {'label': 'Man of the match bonus', 'value': 50}
-    PREDICTION_BONUS = {'label': 'Prediction Bonus', 'value': 50}
+    CORRECT_PREDICTION_BONUS = {'label': 'Correct Prediction Bonus', 'value': 50}
+    INCORRECT_PREDICTION_BONUS = {'label': 'Incorrect Prediction Bonus', 'value': -30}
 
     @classmethod
     def get_all_award_rules(cls):

@@ -66,14 +66,18 @@ class LeagueService:
         if not league:
             abort(422, message='League does not exist. Please create one to join.')
 
-        # Checking if user has already joined the league with current team
+        # Checking if user exists
         user: User = self.user_dao.get_user_by_email(email)
         if not user:
             abort(403, message=f'User with email: {email} does not exist')
 
+        # Check if the user has already joined the league
+        cnt: int = SnapshotDAO.get_count_of_user_in_snapshot(league.id, user.id)
+        if cnt > 0:
+            abort(403, message=f'You cannot join the same league again')
+
         # Check if the team trying to join exists or not, and the user is the owner or not
         team: UserTeam = self.team_dao.get_team_by_name(team_name)
-
         if team:
             abort(409, message=f'{team_name} already exists')
 
