@@ -14,7 +14,7 @@ class Snapshot(db.Model):
     match_points = db.Column(db.Float, default=0.0)
     cumulative_points = db.Column(db.Float, default=0.0)
     rank = db.Column(db.Integer, default=-1)
-    remaining_substitutes = db.Column(db.Integer, default=150)
+    remaining_substitutes = db.Column(db.Integer, default=250)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
