@@ -41,3 +41,9 @@ class MatchDAO:
                               .order_by(Match.schedule.desc()).all())
         return match if match else []
 
+    @staticmethod
+    def get_previous_match_of_given_match(current_match_id: int) -> int | None:
+        match: Match = Match.query.filter(Match.id < current_match_id).order_by(Match.schedule.desc()).limit(1).first()
+
+        return match.id if match else None
+

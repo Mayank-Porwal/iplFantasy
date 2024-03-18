@@ -17,7 +17,8 @@ class MatchLeaderboard(MethodView):
     @blp.arguments(MatchLeaderBoardRequestSchema, location='query')
     @blp.response(200, MatchLeaderBoardResponseSchema(many=True))
     def get(self, query_args: dict):
+        match_id = query_args.get('match_id')
         league_id = query_args.get('league_id')
         email = fetch_user_from_jwt()
 
-        return service.get_match_leader_board(league_id, email)
+        return service.get_match_leader_board(match_id, league_id, email)

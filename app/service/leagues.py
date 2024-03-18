@@ -241,7 +241,7 @@ class LeagueService:
         league_rule_map = LeagueRulesDAO.get_league_rules_map(league_id)
 
         match: Match = MatchDAO.get_current_match_id_by_status('FINISHED')
-        snapshots: list[Snapshot] = SnapshotDAO.get_all_rows_for_current_match(match.id)
+        snapshots: list[Snapshot] = SnapshotDAO.get_all_rows_for_current_match_for_league(match.id, league_id)
 
         previous_completed_match: Match = MatchDAO.get_previous_completed_match(status='FINISHED')
         previous_completed_match_points = 0
@@ -259,9 +259,10 @@ class LeagueService:
                     total_points += league_rule_map.get(global_rules_map['Incorrect Prediction Bonus'], 0)
 
             for player in snapshot.team_snapshot:
-                fantasy_points = FantasyPointsDAO.save_fantasy_points_per_player_per_league(match.id,
-                                                                                            snapshot.league_id,
-                                                                                            player['id'])
+                fantasy_points = FantasyPointsDAO.save_fantasy_points_per_player_per_league(
+                    match.id, snapshot.league_id, player['id'], captain=player['captain'],
+                    vice_captain=player['vice_captain']
+                )
                 total_points += fantasy_points
 
             snapshot.match_points = total_points

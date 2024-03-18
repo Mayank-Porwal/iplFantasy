@@ -40,8 +40,8 @@ class SnapshotDAO:
         db.session.commit()
 
     @staticmethod
-    def get_all_rows_for_current_match(match_id: int) -> list[Snapshot]:
-        snapshots = Snapshot.query.filter_by(match_id=match_id).all()
+    def get_all_rows_for_current_match_for_league(match_id: int, league_id: int) -> list[Snapshot]:
+        snapshots = Snapshot.query.filter_by(match_id=match_id, league_id=league_id).all()
         return snapshots if snapshots else []
 
     @staticmethod

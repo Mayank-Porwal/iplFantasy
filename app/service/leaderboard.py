@@ -10,14 +10,15 @@ from app.dao.snapshot import SnapshotDAO
 from app.dao.match import MatchDAO
 from app.dao.scores import ScoresDAO
 from app.dao.players import PlayerDAO
+from app.dao.teams import TeamDAO
 
 
 class LeaderBoardService:
     @staticmethod
-    def get_match_leader_board(league_id: int, email: str, tournament_id: int = 1):
-        match: Match = MatchDAO.get_current_match_id_by_status(status='FINISHED')
+    def get_match_leader_board(match_id: int, league_id: int, email: str, tournament_id: int = 1):
+        match: Match = MatchDAO.get_match_by_id(match_id)
         if not match:
-            abort(403, message=f'Match is in-progress. Please visit this page post completion.')
+            abort(403, message=f'Match does not exist')
 
         user: User = UserDAO.get_user_by_email(email)
         if not user:
@@ -28,9 +29,12 @@ class LeaderBoardService:
         if not league:
             abort(403, message='League does not exist')
 
-        snapshots: list[Snapshot] = SnapshotDAO.get_all_rows_for_current_match(match.id)
+        snapshots: list[Snapshot] = SnapshotDAO.get_all_rows_for_current_match_for_league(match_id, league_id)
         if not snapshots:
             abort(403, message='No teams are part of this league')
+
+        previous_match_id: int = MatchDAO.get_previous_match_of_given_match(match_id)
+        trades = 0
 
         output = []
         for snapshot in snapshots:
@@ -49,11 +53,20 @@ class LeaderBoardService:
                     'points': points
                 })
 
+            user: User = UserDAO.get_user_by_id(snapshot.user_id)
+            user_name: str = f'{user.first_name} {user.last_name}'
+
+            if previous_match_id:
+                previous_snapshot: Snapshot = SnapshotDAO.get_row_for_team_in_league(previous_match_id, league_id,
+                                                                                     snapshot.team_id)
+                trades = snapshot.remaining_substitutes - previous_snapshot.remaining_substitutes
+
             output.append(
                 {
                     'team_id': snapshot.team_id,
-                    'team_name': '',
-                    'owner': '',
+                    'team_name': TeamDAO.get_team_by_id(snapshot.team_id).name,
+                    'owner': user_name,
+                    'trades': trades,
                     'data': team_output
                 }
             )
