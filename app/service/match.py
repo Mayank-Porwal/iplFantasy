@@ -101,14 +101,13 @@ class MatchService:
 
     def get_previous_completed_matches(self, status: str = 'FINISHED'):
         matches = self.dao.get_previous_completed_matches(status)
-        output = []
 
-        for match in matches:
-            output.append(f'{IplTeamsDAO.get_ipl_team_by_id(match.home_team_id).code} vs '
-                          f'{IplTeamsDAO.get_ipl_team_by_id(match.away_team_id).code}')
-
-        result = list(zip(list(range(len(output), 0, -1)), output))
+        result = list(zip(list(range(len(matches), 0, -1)), matches))
         return [
-            {'number': row[0], 'match': row[1]}
+            {'number': row[0],
+             'match': f'{IplTeamsDAO.get_ipl_team_by_id(row[1].home_team_id).code} '
+                      f'vs {IplTeamsDAO.get_ipl_team_by_id(row[1].away_team_id).code}',
+             'match_id': row[1].id
+             }
             for row in result
         ]
