@@ -5,6 +5,7 @@ from flask_jwt_extended import jwt_required
 from app.service.match import MatchService
 from app.schemas.util import RequestSchemaWithTournament, PostResponseSuccessSchema
 from app.schemas.player import PlayingElevenResponseSchema
+from app.schemas.match import CompletedMatchesResponseSchema
 
 blp = Blueprint('Match', __name__, description='Match related endpoints')
 match_service = MatchService()
@@ -33,3 +34,12 @@ class CurrentMatchPlayers(MethodView):
     @blp.response(200, PlayingElevenResponseSchema(many=True))
     def get(self):
         return match_service.get_lineup_for_a_match()
+
+
+@blp.route('/completed-matches')
+class CompletedMatches(MethodView):
+    @cross_origin()
+    @jwt_required()
+    @blp.response(200, CompletedMatchesResponseSchema(many=True))
+    def get(self):
+        return match_service.get_previous_completed_matches()

@@ -34,3 +34,10 @@ class MatchDAO:
         match: list[Match] = (Match.query.filter_by(status=MatchStatus[status.upper()].value)
                               .order_by(Match.schedule.asc()).all())
         return match[-2] if match else {}
+
+    @staticmethod
+    def get_previous_completed_matches(status: str = 'FINISHED') -> list[Match] | None:
+        match: list[Match] = (Match.query.filter_by(status=MatchStatus[status.upper()].value)
+                              .order_by(Match.schedule.desc()).all())
+        return match if match else []
+

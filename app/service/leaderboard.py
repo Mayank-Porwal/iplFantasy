@@ -52,6 +52,8 @@ class LeaderBoardService:
             output.append(
                 {
                     'team_id': snapshot.team_id,
+                    'team_name': '',
+                    'owner': '',
                     'data': team_output
                 }
             )
