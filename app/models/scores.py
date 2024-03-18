@@ -22,6 +22,7 @@ class Scores(db.Model):
     dots = db.Column(db.Integer, default=0)
     maidens = db.Column(db.Integer, default=0)
     economy = db.Column(db.Float, default=0.0)
+    runs_conceded = db.Column(db.Integer, default=0.0)
 
     # Fielding related columns
     catches = db.Column(db.Integer, default=0)

@@ -67,10 +67,11 @@ class ScoresDAO:
         row.dots += 0
         row.maidens += data.get('maidens')
         row.economy = data.get('economy')
+        row.runs_conceded += data.get('runs_conceded')
 
         row.save()
 
     @staticmethod
-    def get_scores_for_a_player(tournament_id: int, match_id: int, player_id: int) -> Scores:
+    def get_scores_for_a_player(tournament_id: int, match_id: int, player_id: int) -> Scores | None:
         row = Scores.query.filter_by(tournament_id=tournament_id, match_id=match_id, player_id=player_id).first()
-        return row if row else Scores
+        return row if row else {}

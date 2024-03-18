@@ -48,3 +48,9 @@ class SnapshotDAO:
     def get_count_of_user_in_snapshot(league_id: int, user_id: int, active: bool = True) -> int:
         cnt: int = Snapshot.query.filter_by(league_id=league_id, user_id=user_id, is_active=active).count()
         return cnt
+
+    @staticmethod
+    def get_row_for_team_in_league(match_id: int, league_id: int, team_id: int, active: bool = True):
+        row: Snapshot = Snapshot.query.filter_by(match_id=match_id, league_id=league_id, team_id=team_id,
+                                                 is_active=active).first()
+        return row if row else {}

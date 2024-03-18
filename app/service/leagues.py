@@ -1,16 +1,22 @@
 from flask_smorest import abort
+
 from app.models.leagues import League
+from app.models.scores import Scores
 from app.models.users import User
 from app.models.teams import UserTeam
 from app.models.snapshot import Snapshot
 from app.models.tournament import Tournament
+from app.models.match import Match
 from app.dao.leagues import LeagueDAO
 from app.dao.users import UserDAO
 from app.dao.teams import TeamDAO
 from app.dao.snapshot import SnapshotDAO
+from app.dao.prediction import PredictionDAO
+from app.dao.scores import ScoresDAO
 from app.dao.match import MatchDAO
 from app.dao.tournaments import TournamentDAO
-from app.dao.rules import LeagueRulesDAO
+from app.dao.rules import LeagueRulesDAO, GlobalRulesDAO
+from app.dao.fantasy_points import FantasyPointsDAO
 from app.utils.leagues import LeagueType
 
 
@@ -227,3 +233,40 @@ class LeagueService:
             "page": paginated_results.page,
             "size": paginated_results.per_page
         }
+
+    @staticmethod
+    def calculate_fantasy_points_for_league(league_id: int, tournament_id: int = 1) -> None:
+        global_rules = GlobalRulesDAO.get_all_rules()
+        global_rules_map = {rule.rule: rule.id for rule in global_rules}
+        league_rule_map = LeagueRulesDAO.get_league_rules_map(league_id)
+
+        match: Match = MatchDAO.get_current_match_id_by_status('FINISHED')
+        snapshots: list[Snapshot] = SnapshotDAO.get_all_rows_for_current_match(match.id)
+
+        previous_completed_match: Match = MatchDAO.get_previous_completed_match(status='FINISHED')
+        previous_completed_match_points = 0
+
+        for snapshot in snapshots:
+            total_points = 0
+            prediction = PredictionDAO.get_predicted_team_for_current_match(match.id,
+                                                                            snapshot.user_id,
+                                                                            snapshot.team_id,
+                                                                            league_id)
+            if prediction:
+                if match.winner_team_id == prediction:
+                    total_points += league_rule_map.get(global_rules_map['Correct Prediction Bonus'], 0)
+                else:
+                    total_points += league_rule_map.get(global_rules_map['Incorrect Prediction Bonus'], 0)
+
+            for player in snapshot.team_snapshot:
+                fantasy_points = FantasyPointsDAO.save_fantasy_points_per_player_per_league(match.id,
+                                                                                            snapshot.league_id,
+                                                                                            player['id'])
+                total_points += fantasy_points
+
+            snapshot.match_points = total_points
+            if previous_completed_match:
+                previous_completed_match_points = SnapshotDAO.get_row_for_team_in_league(previous_completed_match.id,
+                                                                                         league_id, snapshot.team_id)
+            snapshot.cumulative_points += snapshot.match_points + previous_completed_match_points
+            snapshot.save()

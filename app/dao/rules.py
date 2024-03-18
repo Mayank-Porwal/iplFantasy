@@ -41,3 +41,8 @@ class LeagueRulesDAO:
                         .filter(LeagueRules.league_id == league_id)
                         .order_by(Rules.id.asc()))
         return result
+
+    @staticmethod
+    def get_league_rules_map(league_id: int) -> dict | None:
+        league_rules = LeagueRulesDAO.get_league_rules(league_id)
+        return {i[0].rule_id: i[0].value for i in league_rules if i[0].is_active}

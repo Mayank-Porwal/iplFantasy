@@ -108,3 +108,13 @@ class PublicLeague(MethodView):
         page = query_args.get('page')
 
         return league_service.get_public_leagues(email, filter_data, page, size)
+
+
+@blp.route('/league-fantasy-points')
+class LeagueFantasyPoints(MethodView):
+    @cross_origin()
+    @blp.arguments(LeagueGetSchema)
+    @blp.response(201, PostResponseSuccessSchema)
+    def post(self, payload: dict):
+        league_id = payload.get('league_id')
+        return league_service.calculate_fantasy_points_for_league(league_id)
