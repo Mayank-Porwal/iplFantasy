@@ -68,6 +68,7 @@ class LeaderBoardService:
                     'owner': user_name,
                     'trades': trades,
                     'total_points': snapshot.match_points,
+                    'rank': snapshot.rank,
                     'data': team_output
                 }
             )

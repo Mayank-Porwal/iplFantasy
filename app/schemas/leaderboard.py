@@ -18,4 +18,5 @@ class MatchLeaderBoardResponseSchema(Schema):
     owner = fields.Str(required=True)
     trades = fields.Int(required=True)
     total_points = fields.Float(required=True)
+    rank = fields.Int(required=True)
     data = fields.List(fields.Nested(MatchLeaderBoardDataSchema(many=True), required=True))  # type: ignore
