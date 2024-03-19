@@ -67,6 +67,7 @@ class LeaderBoardService:
                     'team_name': TeamDAO.get_team_by_id(snapshot.team_id).name,
                     'owner': user_name,
                     'trades': trades,
+                    'total_points': snapshot.match_points,
                     'data': team_output
                 }
             )
