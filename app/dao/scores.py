@@ -75,3 +75,9 @@ class ScoresDAO:
     def get_scores_for_a_player(tournament_id: int, match_id: int, player_id: int) -> Scores | None:
         row = Scores.query.filter_by(tournament_id=tournament_id, match_id=match_id, player_id=player_id).first()
         return row if row else {}
+
+    @staticmethod
+    def get_last_n_stats_for_a_player(player_id: int, n: int, tournament_id: int) -> list[Scores] | None:
+        rows: list[Scores] = (Scores.query.filter_by(tournament_id=tournament_id, player_id=player_id)
+                              .order_by(Scores.match_id.desc()).limit(n).all())
+        return rows if rows else []

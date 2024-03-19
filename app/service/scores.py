@@ -1,22 +1,20 @@
 import requests
 from flask_smorest import abort
 
-from app.dao.leagues import LeagueDAO
 from app.dao.scores import ScoresDAO
 from app.dao.match import MatchDAO
-from app.dao.snapshot import SnapshotDAO
-from app.dao.rules import LeagueRulesDAO
+from app.dto.scores import LastNStatsDTO
 from app.models.match import Match
-from app.models.snapshot import Snapshot
 from app.models.scores import Scores
-from app.dao.users import UserDAO
-from app.dao.prediction import PredictionDAO
+from app.dao.players import PlayerDAO
 from app.utils.sportsmonk import SportsMonkConstants
+from app.utils.scores import calculate_overs_from_balls
 
 
 class ScoreService:
     def __init__(self) -> None:
         self.dao = ScoresDAO
+        self.dto = LastNStatsDTO()
 
     def upsert_scores_of_players(self, tournament_id: int = 1) -> None:
         match_id: int = MatchDAO.get_current_match_id_by_status().id
@@ -76,3 +74,38 @@ class ScoreService:
                 self.dao.upsert_bowling_scores(tournament_id, match_id, bowler_id, data)
 
         return
+
+    def get_last_n_stats_for_a_player(self, player_id: int, n: int) -> list[Scores] | None:
+        stats = self.dao.get_last_n_stats_for_a_player(player_id, n, tournament_id=1)
+        output = []
+
+        if not stats:
+            output.append(self.dto.to_dict())
+        else:
+            for stat in stats:
+                match: Match = MatchDAO.get_match_by_id(stat.match_id)
+                teams: list = [match.home_team_id, match.away_team_id]
+                home_team_id: int = PlayerDAO.get_player_by_id(player_id)
+                opponent: str = '-'
+
+                for team in teams:
+                    if team != home_team_id:
+                        opponent = team
+
+                output.append(
+                    LastNStatsDTO(
+                        opponent=opponent,
+                        runs_scored=stat.runs_scored,
+                        balls_faced=stat.balls_faced,
+                        strike_rate=stat.strike_rate,
+                        wickets=stat.wickets,
+                        economy=stat.economy,
+                        overs=calculate_overs_from_balls(stat.balls_bowled),
+                        runs_conceded=stat.runs_conceded,
+                        catches=stat.catches,
+                        stumping=0,
+                        run_outs=stat.run_outs
+                    ).to_dict()
+                )
+
+        return output

@@ -74,3 +74,13 @@ def total_fantasy_points_of_player(score: Scores, league_rules_map: dict) -> flo
     award_points = calculate_award_fantasy_score(score, league_rules_map)
 
     return batting_points + bowling_points + fielding_points + award_points
+
+
+def calculate_overs_from_balls(balls: int) -> str:
+    if balls > 0:
+        if balls % 6 == 0:
+            return str(balls // 6)
+        else:
+            return f'{(balls // 6)}.{balls % 6}'
+
+    return '0'
