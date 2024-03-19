@@ -61,6 +61,8 @@ def create_app():
     from app.controller.global_rules import blp as global_rules
     from app.controller.prediction import blp as prediction
     from app.controller.scores import blp as scores
+    from app.controller.snapshot import blp as snapshot
+    from app.controller.leaderboard import blp as leaderboard
 
     api = Api(app)
     api.register_blueprint(players)
@@ -73,6 +75,8 @@ def create_app():
     api.register_blueprint(global_rules)
     api.register_blueprint(prediction)
     api.register_blueprint(scores)
+    api.register_blueprint(snapshot)
+    api.register_blueprint(leaderboard)
 
     return app
 
