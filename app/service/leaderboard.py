@@ -47,6 +47,11 @@ class LeaderBoardService:
                 player_id = player.get('id')
                 score: Scores = ScoresDAO.get_scores_for_a_player(tournament_id, match.id, player_id)
                 points = score.fantasy_points if score else '-'
+                if player.get('captain'):
+                    points *= 2
+                elif player.get('vice_captain'):
+                    points *= 1.5
+
                 team_output.append({
                     'id': player_id,
                     'name': PlayerDAO.get_player_by_id(player_id).name,
