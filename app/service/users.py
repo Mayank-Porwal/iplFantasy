@@ -24,7 +24,7 @@ class UserService:
         self.dao.add_user(dto)
 
     def login_user(self, dto) -> dict:
-        user = self.dao.get_user_by_email(dto['email'])
+        user = self.dao.get_user_by_email(dto['email'].lower())
 
         if user and self.dao.check_password(user.password, dto['password']):
             identity = {
