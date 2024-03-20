@@ -71,6 +71,7 @@ class LeaderBoardService:
                     'team_id': snapshot.team_id,
                     'team_name': TeamDAO.get_team_by_id(snapshot.team_id).name,
                     'owner': user_name,
+                    'owner_id': user.id,
                     'trades': trades,
                     'total_points': snapshot.match_points,
                     'rank': snapshot.rank,

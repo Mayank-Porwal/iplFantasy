@@ -16,6 +16,7 @@ class MatchLeaderBoardResponseSchema(Schema):
     team_id = fields.Int(required=True)
     team_name = fields.Str(required=True)
     owner = fields.Str(required=True)
+    owner_id = fields.Int(required=True)
     trades = fields.Int(required=True)
     total_points = fields.Float(required=True)
     rank = fields.Int(required=True)
