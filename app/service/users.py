@@ -16,7 +16,6 @@ class UserService:
         self.otp_dao = OtpDAO
 
     def register_user(self, dto) -> None:
-        dto['email'] = dto['email'].lower()
         user = self.dao.get_user_by_email(dto['email'])
         if user:
             abort(409, message=f"A user with email {dto['email']} already exists.")
@@ -24,7 +23,7 @@ class UserService:
         self.dao.add_user(dto)
 
     def login_user(self, dto) -> dict:
-        user = self.dao.get_user_by_email(dto['email'].lower())
+        user = self.dao.get_user_by_email(dto['email'])
 
         if user and self.dao.check_password(user.password, dto['password']):
             identity = {

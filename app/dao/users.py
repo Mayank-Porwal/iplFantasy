@@ -5,7 +5,7 @@ from app import bcrypt
 class UserDAO:
     @staticmethod
     def get_user_by_email(email: str) -> User:
-        user: User = User.query.filter_by(email=email).first()
+        user: User = User.query.filter_by(email=email.lower()).first()
         return user if user else {}
 
     @staticmethod
