@@ -88,9 +88,9 @@ class MatchService:
                 home_team_players, away_team_players = [], []
                 for player in data['lineup']:
                     if player['lineup']['team_id'] == match.home_team_id:
-                        home_team_players.append(player.id)
+                        home_team_players.append(player.get('id'))
                     elif player['lineup']['team_id'] == match.away_team_id:
-                        away_team_players.append(player.id)
+                        away_team_players.append(player.get('id'))
 
                 result['teamA']['players'] = home_team_players
                 result['teamB']['players'] = away_team_players
