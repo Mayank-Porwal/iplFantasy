@@ -22,7 +22,7 @@ class Scores(db.Model):
     dots = db.Column(db.Integer, default=0)
     maidens = db.Column(db.Integer, default=0)
     economy = db.Column(db.Float, default=0.0)
-    runs_conceded = db.Column(db.Integer, default=0.0)
+    runs_conceded = db.Column(db.Integer, default=0)
 
     # Fielding related columns
     catches = db.Column(db.Integer, default=0)
@@ -36,6 +36,32 @@ class Scores(db.Model):
 
     def __repr__(self):
         return f"Scores('{self.match_id}' - '{self.player_id}'"
+
+    def __init__(self, tournament_id, match_id, player_id):
+        self.tournament_id = tournament_id
+        self.match_id = match_id
+        self.player_id = player_id
+        self.runs_scored = 0
+        self.balls_faced = 0
+        self.sixes = 0
+        self.fours = 0
+        self.strike_rate = 0.0
+        self.dismissed = False
+
+        # Bowling related columns
+        self.wickets = 0
+        self.balls_bowled = 0
+        self.dots = 0
+        self.maidens = 0
+        self.economy = 0.0
+        self.runs_conceded = 0
+
+        # Fielding related columns
+        self.catches = 0
+        self.run_outs = 0
+
+        # Award related columns
+        self.man_of_the_match = False
 
     def save(self):
         db.session.add(self)

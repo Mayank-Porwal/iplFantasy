@@ -1,5 +1,7 @@
 from flask_smorest import abort
 
+import pandas as pd
+
 from app.models.leagues import League
 from app.models.scores import Scores
 from app.models.users import User
@@ -240,10 +242,10 @@ class LeagueService:
         global_rules_map = {rule.rule: rule.id for rule in global_rules}
         league_rule_map = LeagueRulesDAO.get_league_rules_map(league_id)
 
-        match: Match = MatchDAO.get_current_match_id_by_status('FINISHED')
+        match: Match = MatchDAO.get_recent_completed_match()
         snapshots: list[Snapshot] = SnapshotDAO.get_all_rows_for_current_match_for_league(match.id, league_id)
 
-        previous_completed_match: Match = MatchDAO.get_previous_completed_match(status='FINISHED')
+        previous_completed_match: Match = MatchDAO.get_previous_match_of_given_match(match.id)
         previous_completed_match_points = 0
 
         for snapshot in snapshots:
@@ -271,3 +273,17 @@ class LeagueService:
                                                                                          league_id, snapshot.team_id)
             snapshot.cumulative_points += snapshot.match_points + previous_completed_match_points
             snapshot.save()
+
+        # calculating rank for each team after fantasy points update
+        team_rank_map = LeagueService.calculate_rank_for_a_match(match.id, league_id)
+        for snapshot in snapshots:
+            snapshot.rank = team_rank_map[snapshot.team_id]
+            snapshot.save()
+
+    @staticmethod
+    def calculate_rank_for_a_match(match_id: int, league_id: int) -> dict:
+        snapshots: list[Snapshot] = SnapshotDAO.get_all_rows_for_current_match_for_league(match_id, league_id)
+        df = pd.DataFrame([snapshot.__dict__ for snapshot in snapshots])[['team_id', 'match_points']]
+        df['rank'] = df['match_points'].rank(ascending=False).astype(int)
+
+        return df.set_index('team_id').to_dict()['rank']

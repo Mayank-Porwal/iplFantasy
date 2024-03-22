@@ -1,6 +1,6 @@
 import requests
 from flask_smorest import abort
-from app.dao.match import MatchDAO
+from app.dao.match import MatchDAO, Match
 from app.dao.ipl_teams import IplTeamsDAO
 from app.utils.sportsmonk import SportsMonkConstants
 from app.utils.match import MatchStatus
@@ -111,3 +111,11 @@ class MatchService:
              }
             for row in result
         ]
+
+    def mark_match_completed(self, tournament_id: int, match_id: int) -> dict:
+        match: Match = self.dao.get_match_by_id(match_id)
+        if not match:
+            abort(404, message='Match not found')
+
+        self.dao.mark_match_completed(match, tournament_id)
+        return {'message': 'Match is marked completed'}

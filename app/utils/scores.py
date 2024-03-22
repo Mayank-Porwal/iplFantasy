@@ -84,3 +84,15 @@ def calculate_overs_from_balls(balls: int) -> str:
             return f'{(balls // 6)}.{balls % 6}'
 
     return '0'
+
+
+def calculate_balls_from_overs(overs: int) -> int:
+    overs = str(overs)
+    if overs:
+        if '.' in overs:
+            over, balls = overs.split('.')
+            return (int(over) * 6) + int(balls)
+        else:
+            return int(overs) * 6
+
+    return 0

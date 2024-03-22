@@ -11,6 +11,7 @@ from app.dao.match import MatchDAO
 from app.dao.scores import ScoresDAO
 from app.dao.players import PlayerDAO
 from app.dao.teams import TeamDAO
+from app.dao.fantasy_points import FantasyPointsDAO, FantasyPoints
 
 
 class LeaderBoardService:
@@ -33,7 +34,7 @@ class LeaderBoardService:
         if not snapshots:
             abort(403, message='No teams are part of this league')
 
-        previous_match_id: int = MatchDAO.get_previous_match_of_given_match(match_id)
+        previous_match: Match = MatchDAO.get_previous_match_of_given_match(match_id)
         trades = 0
 
         output = []
@@ -45,8 +46,9 @@ class LeaderBoardService:
             team_output = []
             for player in team_snapshot:
                 player_id = player.get('id')
-                score: Scores = ScoresDAO.get_scores_for_a_player(tournament_id, match.id, player_id)
-                points = score.fantasy_points if score else '-'
+                score: FantasyPoints = FantasyPointsDAO.get_fantasy_points_of_player_in_league(match.id, league_id,
+                                                                                               player_id)
+                points = score.points if score else '-'
                 if player.get('captain'):
                     points *= 2
                 elif player.get('vice_captain'):
@@ -61,8 +63,8 @@ class LeaderBoardService:
             user: User = UserDAO.get_user_by_id(snapshot.user_id)
             user_name: str = f'{user.first_name} {user.last_name}'
 
-            if previous_match_id:
-                previous_snapshot: Snapshot = SnapshotDAO.get_row_for_team_in_league(previous_match_id, league_id,
+            if previous_match:
+                previous_snapshot: Snapshot = SnapshotDAO.get_row_for_team_in_league(previous_match.id, league_id,
                                                                                      snapshot.team_id)
                 trades = snapshot.remaining_substitutes - previous_snapshot.remaining_substitutes
 

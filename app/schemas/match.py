@@ -5,3 +5,8 @@ class CompletedMatchesResponseSchema(Schema):
     number = fields.Int(required=True)
     match = fields.Str(required=True)
     match_id = fields.Int(required=True)
+
+
+class MarkMatchCompleteRequestSchema(Schema):
+    tournament_id = fields.Int(required=True)
+    match_id = fields.Int(required=True)

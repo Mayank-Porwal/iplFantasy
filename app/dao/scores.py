@@ -22,11 +22,11 @@ class ScoresDAO:
         if not row:
             row = Scores(tournament_id=tournament_id, match_id=match_id, player_id=player_id)
 
-        row.runs_scored += data.get('runs_scored')
-        row.balls_faced += data.get('balls_faced')
-        row.sixes += data.get('sixes')
-        row.fours += data.get('fours')
-        row.strike_rate += data.get('strike_rate')
+        row.runs_scored += data.get('runs_scored', 0)
+        row.balls_faced += data.get('balls_faced', 0)
+        row.sixes += data.get('sixes', 0)
+        row.fours += data.get('fours', 0)
+        row.strike_rate += data.get('strike_rate', 0)
         row.dismissed = data.get('dismissed') if data.get('dismissed') else False
 
         row.save()

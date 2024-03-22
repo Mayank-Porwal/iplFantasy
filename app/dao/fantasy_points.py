@@ -12,9 +12,9 @@ class FantasyPointsDAO:
                                                   vice_captain: bool = False) -> float:
         scores: Scores = ScoresDAO.get_scores_for_a_player(tournament_id, match_id, player_id)
         league_rules_map = LeagueRulesDAO.get_league_rules_map(league_id)
-        points = total_fantasy_points_of_player(scores, league_rules_map)
 
         if scores:
+            points = total_fantasy_points_of_player(scores, league_rules_map)
             row: FantasyPoints = FantasyPoints.query.filter_by(tournament_id=tournament_id, match_id=match_id,
                                                                league_id=league_id, player_id=player_id).first()
             if not row:
@@ -23,15 +23,17 @@ class FantasyPointsDAO:
             row.points = points
             row.save()
 
-        if captain:
-            return points * 2
-        elif vice_captain:
-            return points * 1.5
-        return points
+            if captain:
+                return points * 2
+            elif vice_captain:
+                return points * 1.5
+            return points
+
+        return 0.0
 
     @staticmethod
     def get_fantasy_points_of_player_in_league(match_id: int, league_id: int, player_id: int,
-                                               tournament_id: int = 1) -> dict:
+                                               tournament_id: int = 1) -> FantasyPoints| dict:
         row: FantasyPoints = FantasyPoints.query.filter_by(tournament_id=tournament_id, match_id=match_id,
                                                            league_id=league_id, player_id=player_id).first()
         return row if row else {}
