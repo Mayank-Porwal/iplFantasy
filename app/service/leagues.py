@@ -131,26 +131,33 @@ class LeagueService:
             'code': league.join_code if league.join_code else ''
         }
 
-        match_id: int = MatchDAO.get_current_match_id_by_status().id
-        league_info: Snapshot = self.snapshot_dao.get_league_info_for_user(league.id, user.id, match_id)
-
+        # match_id: int = MatchDAO.get_current_match_id_by_status().id
+        # league_info: Snapshot = self.snapshot_dao.get_league_info_for_user(league.id, user.id, match_id)
+        #
         league_players = []
-        if league_info or league.league_type == LeagueType.public.name:
-            result = self.league_dao.get_league_details(league_id, match_id)
+        # if league_info or league.league_type == LeagueType.public.name:
+        #
+        snapshots: list[Snapshot] = self.snapshot_dao.get_league_info(league_id)
+        if snapshots:
+            df = pd.DataFrame([row.__dict__ for row in snapshots]).drop('_sa_instance_state', axis=1)
+            result = df.loc[df.groupby(['league_id', 'team_id'])['created_at'].idxmax()].to_dict('records')
 
-            for row in result:
-                sn, l, ut, u = row
-                league_players.append({
-                    'rank': sn.rank,
-                    'team_id': ut.id,
-                    'team_name': ut.name,
-                    'team_owner': f'{u.first_name} {u.last_name}',
-                    'remaining_subs': sn.remaining_substitutes,
-                    'points': sn.cumulative_points
-                })
+            if not df.empty:
+                for row in result:
+                    team_id = row['team_id']
+                    team: UserTeam = TeamDAO.get_team_by_id(team_id)
+                    owner: User = UserDAO.get_user_by_id(team.user_id)
+                    league_players.append({
+                        'rank': row['rank'],
+                        'team_id': team_id,
+                        'team_name': team.name,
+                        'team_owner': f'{owner.first_name} {owner.last_name}',
+                        'remaining_subs': row['remaining_substitutes'],
+                        'points': row['cumulative_points']
+                    })
 
-            output['league_players'] = league_players
-            return output
+                output['league_players'] = league_players
+                return output
         abort(403, message='Join the league to view the details.')
 
     def transfer_league_ownership(self, league_id: int, owner_email: str, new_owner_email: str) -> dict:

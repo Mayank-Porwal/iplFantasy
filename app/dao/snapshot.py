@@ -59,3 +59,9 @@ class SnapshotDAO:
     def submit_team(snapshot: Snapshot, draft_team: dict) -> None:
         snapshot.team_snapshot = draft_team
         snapshot.save()
+
+    @staticmethod
+    def get_league_info(league_id: int, active: bool = True) -> list[Snapshot] | None:
+        rows: list[Snapshot] = Snapshot.query.filter_by(league_id=league_id, is_active=active).all()
+        return rows if rows else []
+
