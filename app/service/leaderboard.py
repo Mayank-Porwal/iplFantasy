@@ -48,7 +48,7 @@ class LeaderBoardService:
                 player_id = player.get('id')
                 score: FantasyPoints = FantasyPointsDAO.get_fantasy_points_of_player_in_league(match.id, league_id,
                                                                                                player_id)
-                points = score.points if score else '-'
+                points = score.points if score else 0.0
                 if player.get('captain'):
                     points *= 2
                 elif player.get('vice_captain'):
