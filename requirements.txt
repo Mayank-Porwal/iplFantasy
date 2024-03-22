@@ -40,3 +40,4 @@ marshmallow
 flask-smorest
 flask-cors
 requests
+Flask-APScheduler==1.13.1
