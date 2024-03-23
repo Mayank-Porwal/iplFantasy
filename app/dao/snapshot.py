@@ -65,3 +65,8 @@ class SnapshotDAO:
         rows: list[Snapshot] = Snapshot.query.filter_by(league_id=league_id, is_active=active).all()
         return rows if rows else []
 
+    @staticmethod
+    def get_latest_row_for_team(team_id: int, active: bool = True) -> Snapshot | None:
+        row: Snapshot = Snapshot.query.filter_by(team_id=team_id, is_active=active).order_by(
+            Snapshot.created_at.desc()).limit(1).first()
+        return row if row else {}

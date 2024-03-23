@@ -75,33 +75,49 @@ class TeamService:
             abort(403, message=f'User with email: {email} does not exist')
 
         team: UserTeam = self.team_dao.get_team_by_id(team_id)
-        match_id: int = MatchDAO.get_current_match_id_by_status().id
-        league_info: Snapshot = SnapshotDAO.get_league_info_by_team_id(team_id, match_id)
-        user_league_info: Snapshot = SnapshotDAO.get_league_info_for_user(league_info.league_id, user.id, match_id)
-        is_member: bool = False
-
         if team:
             if team.user_id != user.id:
-                if not user_league_info:
-                    abort(403, message=f"You can't view this team")
-                is_member = True
+                abort(403, message=f"You can't view this team")
         else:
             abort(404, message='Team not found')
 
-        last_submitted_team: list = TeamUtils.create_team_players_dict(league_info.team_snapshot) if (
-            league_info.team_snapshot) else []
+        snapshot: Snapshot = SnapshotDAO.get_latest_row_for_team(team_id)
+        # match_id: int = MatchDAO.get_current_match_id_by_status().id
+        # league_info: Snapshot = SnapshotDAO.get_league_info_by_team_id(team_id, match_id)
+        # user_league_info: Snapshot = SnapshotDAO.get_league_info_for_user(league_info.league_id, user.id, match_id)
+        # is_member: bool = False
 
-        if is_member:
-            draft_team: list = last_submitted_team
-        else:
-            draft_team: list = TeamUtils.create_team_players_dict(team.draft_players) if team.draft_players else []
+        # if team:
+        #     if team.user_id != user.id:
+        #         if not user_league_info:
+        #             abort(403, message=f"You can't view this team")
+        #         is_member = True
+        # else:
+        #     abort(404, message='Team not found')
 
+        last_submitted_team = []
+        remaining_substitutes = 250
+        cumulative_points = 0.0
+        rank = -1
+
+        if snapshot:
+            last_submitted_team = snapshot.team_snapshot
+            remaining_substitutes = snapshot.remaining_substitutes
+            cumulative_points = snapshot.cumulative_points
+            rank = snapshot.rank
+
+        # if is_member:
+        #     draft_team: list = last_submitted_team
+        # else:
+        #     draft_team: list = TeamUtils.create_team_players_dict(team.draft_players) if team.draft_players else []
+
+        draft_team: list = TeamUtils.create_team_players_dict(team.draft_players) if team.draft_players else []
         response = {
             'id': team.id,
             'name': team.name,
-            'substitutions': league_info.remaining_substitutes,
-            'points': league_info.cumulative_points,
-            'rank': league_info.rank,
+            'substitutions': remaining_substitutes,
+            'points': cumulative_points,
+            'rank': rank,
             'draft_team': draft_team,
             'last_submitted_team': last_submitted_team
         }
