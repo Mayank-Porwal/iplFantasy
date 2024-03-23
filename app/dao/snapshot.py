@@ -70,3 +70,8 @@ class SnapshotDAO:
         row: Snapshot = Snapshot.query.filter_by(team_id=team_id, is_active=active).order_by(
             Snapshot.created_at.desc()).limit(1).first()
         return row if row else {}
+
+    @staticmethod
+    def get_all_snapshots_for_user(user_id: int, active: bool = True) -> list[Snapshot] | None:
+        row: list[Snapshot] = Snapshot.query.filter_by(user_id=user_id, is_active=active).all()
+        return row if row else {}

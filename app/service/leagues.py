@@ -181,34 +181,66 @@ class LeagueService:
         if not user:
             abort(403, message=f'User with email: {email} does not exist')
 
-        paginated_results = self.league_dao.get_paginated_my_leagues(user.id, search_obj, page, size)
+        snapshots = SnapshotDAO.get_all_snapshots_for_user(user.id)
+        df = pd.DataFrame([row.__dict__ for row in snapshots]).drop('_sa_instance_state', axis=1)
+        result = df.loc[df.groupby(['league_id', 'team_id'])['created_at'].idxmax()].to_dict('records')
+
+        # paginated_results = self.league_dao.get_paginated_my_leagues(user.id, search_obj, page, size)
 
         data = []
 
-        if len(paginated_results.items) > 0:
-            for row in paginated_results.items:
-                li, ul, ut, u = row
+        # if len(paginated_results.items) > 0:
+        #     for row in paginated_results.items:
+        #         li, ul, ut, u = row
+        #         data.append(
+        #             {
+        #                 'active': ul.is_active,
+        #                 'league_id': ul.id,
+        #                 'league_name': ul.name,
+        #                 'type': ul.league_type.name,
+        #                 'team_name': ut.name,
+        #                 'team_id': ut.id,
+        #                 'rank': li.rank,
+        #                 'owner': ul.owner == user.id,
+        #                 'remaining_subs': li.remaining_substitutes,
+        #                 'points': li.cumulative_points
+        #             }
+        #         )
+        if result:
+            for row in result:
+                league_id = row['league_id']
+                league: League = LeagueDAO.get_league_by_id(league_id)
+                team_id = row['team_id']
+                team: UserTeam = TeamDAO.get_team_by_id(team_id)
+
                 data.append(
                     {
-                        'active': ul.is_active,
-                        'league_id': ul.id,
-                        'league_name': ul.name,
-                        'type': ul.league_type.name,
-                        'team_name': ut.name,
-                        'team_id': ut.id,
-                        'rank': li.rank,
-                        'owner': ul.owner == user.id,
-                        'remaining_subs': li.remaining_substitutes,
-                        'points': li.cumulative_points
+                        'active': row['is_active'],
+                        'league_id': league_id,
+                        'league_name': league.name,
+                        'type': league.league_type.name,
+                        'team_name': team.name,
+                        'team_id': team_id,
+                        'rank': row['rank'],
+                        'owner': league.owner == user.id,
+                        'remaining_subs': row['remaining_substitutes'],
+                        'points': row['cumulative_points']
                     }
                 )
 
+        # return {
+        #     "data": data,
+        #     "total": paginated_results.total,
+        #     "total_pages": paginated_results.pages,
+        #     "page": paginated_results.page,
+        #     "size": paginated_results.per_page
+        # }
         return {
             "data": data,
-            "total": paginated_results.total,
-            "total_pages": paginated_results.pages,
-            "page": paginated_results.page,
-            "size": paginated_results.per_page
+            "total": len(result),
+            "total_pages": 1,
+            "page": 1,
+            "size": 25
         }
 
     def get_public_leagues(self, email: str, search_obj: list[dict], page: int, size: int) -> dict:

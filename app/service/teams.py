@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask_smorest import abort
 from app.models.users import User
 from app.models.teams import UserTeam
@@ -64,7 +65,17 @@ class TeamService:
                     self.team_dao.edit_team(team, players)
                     self.snapshot_dao.set_substitutions(substitutions, league_info)
                     return {'message': f'{team.name} saved successfully.'}
-                abort(404, message='No association of team found')
+                else:
+                    snapshot: Snapshot = SnapshotDAO.get_latest_row_for_team(team_id)
+                    league_info = Snapshot(match_id=match.id, league_id=snapshot.league_id, user_id=snapshot.user_id,
+                                           team_id=team_id, team_snapshot=snapshot.team_snapshot,
+                                           match_points=snapshot.match_points,
+                                           cumulative_points=snapshot.cumulative_points,
+                                           rank=snapshot.rank)
+                    league_info.remaining_substitutes = substitutions
+                    league_info.updated_at = datetime.utcnow()
+                    league_info.save()
+                # abort(404, message='No association of team found')
 
             abort(403, message='Team can be edited by its owner only')
         abort(403, message='The team you are trying to edit does not exist')
