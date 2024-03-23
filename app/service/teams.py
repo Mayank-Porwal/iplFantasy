@@ -92,9 +92,13 @@ class TeamService:
         else:
             abort(404, message='Team not found')
 
-        snapshot: Snapshot = SnapshotDAO.get_latest_row_for_team(team_id)
-        # match_id: int = MatchDAO.get_current_match_id_by_status().id
-        # league_info: Snapshot = SnapshotDAO.get_league_info_by_team_id(team_id, match_id)
+        # snapshot: Snapshot = SnapshotDAO.get_latest_row_for_team(team_id)
+        current_match_id: int = MatchDAO.get_current_match_id_by_status().id
+        curr_league_info: Snapshot = SnapshotDAO.get_league_info_by_team_id(team_id, current_match_id)
+
+        previous_match: Match = MatchDAO.get_previous_match_of_given_match(current_match_id)
+        previous_league_info: Snapshot = SnapshotDAO.get_league_info_by_team_id(team_id, previous_match.id)
+
         # user_league_info: Snapshot = SnapshotDAO.get_league_info_for_user(league_info.league_id, user.id, match_id)
         # is_member: bool = False
 
@@ -106,16 +110,14 @@ class TeamService:
         # else:
         #     abort(404, message='Team not found')
 
-        last_submitted_team = []
-        remaining_substitutes = 250
-        cumulative_points = 0.0
-        rank = -1
-
-        if snapshot:
-            last_submitted_team = snapshot.team_snapshot
-            remaining_substitutes = snapshot.remaining_substitutes
-            cumulative_points = snapshot.cumulative_points
-            rank = snapshot.rank
+        last_submitted_team = TeamUtils.create_team_players_dict(previous_league_info.team_snapshot) \
+            if previous_league_info else []
+        previous_remaining_substitutes = previous_league_info.remaining_substitutes if previous_league_info else 250
+        remaining_substitutes = curr_league_info.remaining_substitutes if curr_league_info \
+            else previous_league_info.remaining_substitutes
+        cumulative_points = curr_league_info.cumulative_points if curr_league_info \
+            else previous_league_info.cumulative_points
+        rank = curr_league_info.rank if curr_league_info else previous_league_info.rank
 
         # if is_member:
         #     draft_team: list = last_submitted_team
@@ -130,7 +132,8 @@ class TeamService:
             'points': cumulative_points,
             'rank': rank,
             'draft_team': draft_team,
-            'last_submitted_team': last_submitted_team
+            'last_submitted_team': last_submitted_team,
+            'previous_remaining_substitutes': previous_remaining_substitutes
         }
 
         return response
