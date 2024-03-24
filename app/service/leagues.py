@@ -140,6 +140,7 @@ class LeagueService:
         snapshots: list[Snapshot] = self.snapshot_dao.get_league_info(league_id)
         if snapshots:
             df = pd.DataFrame([row.__dict__ for row in snapshots]).drop('_sa_instance_state', axis=1)
+            df['rank'] = df['cumulative_points'].rank(ascending=False).astype(int)
             result = (df.loc[df.groupby(['league_id', 'team_id'])['created_at'].idxmax()].sort_values('rank').
                       to_dict('records'))
 
