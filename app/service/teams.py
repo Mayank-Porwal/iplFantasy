@@ -99,25 +99,21 @@ class TeamService:
         previous_match: Match = MatchDAO.get_previous_match_of_given_match(current_match_id)
         previous_league_info: Snapshot = SnapshotDAO.get_league_info_by_team_id(team_id, previous_match.id)
 
-        # user_league_info: Snapshot = SnapshotDAO.get_league_info_for_user(league_info.league_id, user.id, match_id)
-        # is_member: bool = False
-
-        # if team:
-        #     if team.user_id != user.id:
-        #         if not user_league_info:
-        #             abort(403, message=f"You can't view this team")
-        #         is_member = True
-        # else:
-        #     abort(404, message='Team not found')
-
-        last_submitted_team = TeamUtils.create_team_players_dict(previous_league_info.team_snapshot) \
-            if previous_league_info else []
-        previous_remaining_substitutes = previous_league_info.remaining_substitutes if previous_league_info else 250
-        remaining_substitutes = curr_league_info.remaining_substitutes if curr_league_info \
-            else previous_league_info.remaining_substitutes
-        cumulative_points = curr_league_info.cumulative_points if curr_league_info \
-            else previous_league_info.cumulative_points
-        rank = curr_league_info.rank if curr_league_info else previous_league_info.rank
+        if not curr_league_info and not previous_league_info:
+            last_submitted_team = []
+            previous_remaining_substitutes = 250
+            remaining_substitutes = 250
+            cumulative_points = 0.0
+            rank = -1
+        else:
+            last_submitted_team = TeamUtils.create_team_players_dict(previous_league_info.team_snapshot) \
+                if previous_league_info else []
+            previous_remaining_substitutes = previous_league_info.remaining_substitutes if previous_league_info else 250
+            remaining_substitutes = curr_league_info.remaining_substitutes if curr_league_info \
+                else previous_league_info.remaining_substitutes
+            cumulative_points = curr_league_info.cumulative_points if curr_league_info \
+                else previous_league_info.cumulative_points
+            rank = curr_league_info.rank if curr_league_info else previous_league_info.rank
 
         # if is_member:
         #     draft_team: list = last_submitted_team
