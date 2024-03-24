@@ -309,8 +309,8 @@ class LeagueService:
 
             snapshot.match_points = total_points
             if previous_completed_match:
-                previous_completed_match_points = SnapshotDAO.get_row_for_team_in_league(previous_completed_match.id,
-                                                                                         league_id, snapshot.team_id)
+                previous_completed_match_points = SnapshotDAO.get_row_for_team_in_league(
+                    previous_completed_match.id, league_id, snapshot.team_id).cumulative_points
             snapshot.cumulative_points += snapshot.match_points + previous_completed_match_points
             snapshot.save()
 
