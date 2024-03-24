@@ -6,6 +6,8 @@ from app.dao.match import MatchDAO
 from app.dto.scores import LastNStatsDTO
 from app.models.match import Match
 from app.models.scores import Scores
+from app.models.ipl_teams import IplTeams
+from app.dao.ipl_teams import IplTeamsDAO
 from app.dao.players import PlayerDAO
 from app.utils.sportsmonk import SportsMonkConstants
 from app.utils.scores import calculate_overs_from_balls, calculate_balls_from_overs
@@ -103,7 +105,8 @@ class ScoreService:
 
                 for team in teams:
                     if team != home_team_id:
-                        opponent = team
+                        ipl_team: IplTeams = IplTeamsDAO.get_ipl_team_by_id(team)
+                        opponent = ipl_team.code
 
                 output.append(
                     LastNStatsDTO(
