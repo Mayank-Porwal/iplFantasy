@@ -100,7 +100,7 @@ class ScoreService:
             for stat in stats:
                 match: Match = MatchDAO.get_match_by_id(stat.match_id)
                 teams: list = [match.home_team_id, match.away_team_id]
-                home_team_id: int = PlayerDAO.get_player_by_id(player_id)
+                home_team_id: int = PlayerDAO.get_player_by_id(player_id).ipl_team
                 opponent: str = '-'
 
                 for team in teams:
