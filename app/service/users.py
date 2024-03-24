@@ -20,6 +20,7 @@ class UserService:
         if user:
             abort(409, message=f"A user with email {dto['email']} already exists.")
 
+        dto['email'] = dto['email'].lower()
         self.dao.add_user(dto)
 
     def login_user(self, dto) -> dict:
