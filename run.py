@@ -1,7 +1,5 @@
 from app import create_app
 from app import scheduler
-from flask import current_app
-from app.scheduled_jobs import submit_all_teams_for_all_leagues
 
 if __name__ == '__main__':
     # with current_app.app_context():

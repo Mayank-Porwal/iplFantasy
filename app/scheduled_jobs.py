@@ -9,7 +9,7 @@ from app import create_app
 snapshot_service = SnapshotService()
 
 
-@scheduler.task(id='abc', trigger='date', run_date='2024-03-22 09:09:59')
+@scheduler.task(id='abc', trigger='date', run_date='2024-03-25 11:10:22')
 def submit_all_teams_for_all_leagues():
     with create_app().app_context():
         match: Match = MatchDAO.get_current_match_id_by_status()
