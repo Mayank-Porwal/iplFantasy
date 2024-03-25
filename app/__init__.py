@@ -6,10 +6,12 @@ from flask_smorest import Api
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flask_apscheduler import APScheduler
 from db import db
 
 bcrypt = Bcrypt()
 cors = CORS()
+scheduler = APScheduler()
 
 
 def create_app():
