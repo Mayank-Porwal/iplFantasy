@@ -12,6 +12,12 @@ class MatchDAO:
         return match if match else None
 
     @staticmethod
+    def get_first_match_of_tournament(tournament_id: int) -> Match | None:
+        match: Match = (Match.query.filter_by(tournament_id=tournament_id).order_by(Match.schedule.asc()).limit(1).
+                        first())
+        return match if match else None
+
+    @staticmethod
     def get_match_by_id(fixture_id: int) -> Match | dict:
         match: Match = Match.query.filter_by(id=fixture_id).first()
         return match if match else {}

@@ -31,7 +31,7 @@ class SnapshotService:
                 if not team:
                     abort(403, message=f'Team does not exist')
 
-                self.dao.submit_team(snapshot, team.draft_players)
+                self.dao.submit_team(snapshot, team.draft_players, team.draft_remaining_subs)
             return {'message': 'Successfully submitted all teams for league.'}
         except Exception as e:
             abort(403, message=f'Failed with error: {e}')
