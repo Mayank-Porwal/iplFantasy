@@ -94,7 +94,7 @@ class TeamService:
             'rank': league_info.rank,
             'draft_team': draft_team,
             'last_submitted_team': last_submitted_team,
-            'previous_remaining_substitutes':  league_info.remaining_substitutes
+            'previous_remaining_substitutes': league_info.remaining_substitutes
         }
 
         return response
