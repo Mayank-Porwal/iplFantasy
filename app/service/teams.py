@@ -84,6 +84,8 @@ class TeamService:
         league_info: Snapshot = SnapshotDAO.get_league_info_by_team_id(team_id, match_id)
 
         draft_team: list = TeamUtils.create_team_players_dict(team.draft_players) if team.draft_players else []
+        last_submitted_team: list = TeamUtils.create_team_players_dict(league_info.team_snapshot) \
+            if league_info.team_snapshot else []
         response = {
             'id': team.id,
             'name': team.name,
@@ -91,7 +93,7 @@ class TeamService:
             'points': league_info.cumulative_points,
             'rank': league_info.rank,
             'draft_team': draft_team,
-            'last_submitted_team': league_info.team_snapshot,
+            'last_submitted_team': last_submitted_team,
             'previous_remaining_substitutes':  league_info.remaining_substitutes
         }
 
