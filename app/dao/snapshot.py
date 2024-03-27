@@ -56,8 +56,9 @@ class SnapshotDAO:
         return row if row else {}
 
     @staticmethod
-    def submit_team(snapshot: Snapshot, draft_team: dict) -> None:
+    def submit_team(snapshot: Snapshot, draft_team: dict, substitutions: int) -> None:
         snapshot.team_snapshot = draft_team
+        snapshot.remaining_substitutes = substitutions
         snapshot.save()
 
     @staticmethod
@@ -74,4 +75,4 @@ class SnapshotDAO:
     @staticmethod
     def get_all_snapshots_for_user(user_id: int, active: bool = True) -> list[Snapshot] | None:
         row: list[Snapshot] = Snapshot.query.filter_by(user_id=user_id, is_active=active).all()
-        return row if row else {}
+        return row if row else []

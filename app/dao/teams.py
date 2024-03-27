@@ -32,8 +32,9 @@ class TeamDAO:
         db.session.commit()
 
     @staticmethod
-    def edit_team(team: UserTeam, players: dict) -> None:
+    def edit_team(team: UserTeam, players: dict, substitutions: int) -> None:
         team.draft_players = players
+        team.draft_remaining_subs = substitutions
         team.updated_at = datetime.utcnow()
         db.session.commit()
 
