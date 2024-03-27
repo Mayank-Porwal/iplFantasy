@@ -55,10 +55,13 @@ class MatchDAO:
         return match if match else {}
 
     @staticmethod
-    def mark_match_completed(match: Match, tournament_id: int = 1) -> None:
+    def update_match_status(match: Match, tournament_id: int = 1, flag='completed') -> None:
         if match:
             if match.tournament_id == tournament_id:
-                match.status = 3
+                if flag == 'completed':
+                    match.status = 3
+                else:
+                    match.status = 2
 
                 match.save()
 

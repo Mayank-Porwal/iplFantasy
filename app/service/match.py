@@ -117,5 +117,13 @@ class MatchService:
         if not match:
             abort(404, message='Match not found')
 
-        self.dao.mark_match_completed(match, tournament_id)
+        self.dao.update_match_status(match, tournament_id=tournament_id)
+        return {'message': 'Match is marked completed'}
+
+    def mark_match_in_progress(self, tournament_id: int, match_id: int) -> dict:
+        match: Match = self.dao.get_match_by_id(match_id)
+        if not match:
+            abort(404, message='Match not found')
+
+        self.dao.update_match_status(match, tournament_id=tournament_id, flag='in-progress')
         return {'message': 'Match is marked completed'}

@@ -54,3 +54,14 @@ class Match(MethodView):
         tournament_id = payload.get('tournament_id')
         match_id = payload.get('match_id')
         return match_service.mark_match_completed(tournament_id, match_id)
+
+
+@blp.route('/mark-match-in-progress')
+class Match(MethodView):
+    @cross_origin()
+    @blp.arguments(MarkMatchCompleteRequestSchema)
+    @blp.response(201, PostResponseSuccessSchema)
+    def post(self, payload: dict):
+        tournament_id = payload.get('tournament_id')
+        match_id = payload.get('match_id')
+        return match_service.mark_match_in_progress(tournament_id, match_id)
