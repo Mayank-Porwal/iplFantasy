@@ -76,3 +76,20 @@ class SnapshotDAO:
     def get_all_snapshots_for_user(user_id: int, active: bool = True) -> list[Snapshot] | None:
         row: list[Snapshot] = Snapshot.query.filter_by(user_id=user_id, is_active=active).all()
         return row if row else []
+
+    @staticmethod
+    def next_match_rows_for_league(match_id: int, snapshot: Snapshot, active: bool = True) -> None:
+        next_snapshot: Snapshot = Snapshot.query.filter_by(league_id=snapshot.league_id, user_id=snapshot.user_id,
+                                                           match_id=match_id, team_id=snapshot.team_id,
+                                                           is_active=active).first()
+        if not next_snapshot:
+            next_snapshot = Snapshot(match_id=match_id, league_id=snapshot.league_id, user_id=snapshot.user_id,
+                                     team_id=snapshot.team_id)
+
+        next_snapshot.team_snapshot = snapshot.team_snapshot
+        next_snapshot.match_points = 0.0
+        next_snapshot.cumulative_points = snapshot.cumulative_points
+        next_snapshot.rank = snapshot.rank
+        next_snapshot.remaining_substitutes = snapshot.remaining_substitutes
+
+        next_snapshot.save()

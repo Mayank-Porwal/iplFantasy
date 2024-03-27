@@ -321,6 +321,13 @@ class LeagueService:
             snapshot.rank = team_rank_map[snapshot.team_id]
             snapshot.save()
 
+        # Create rows for next match in snapshot
+        next_match: Match = MatchDAO.get_current_match_id_by_status()
+        if next_match:
+            snapshots: list[Snapshot] = SnapshotDAO.get_all_rows_for_current_match_for_league(match.id, league_id)
+            for snapshot in snapshots:
+                SnapshotDAO.next_match_rows_for_league(next_match.id, snapshot)
+
     @staticmethod
     def calculate_rank_for_a_match(match_id: int, league_id: int) -> dict:
         snapshots: list[Snapshot] = SnapshotDAO.get_all_rows_for_current_match_for_league(match_id, league_id)
