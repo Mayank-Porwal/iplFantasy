@@ -78,3 +78,9 @@ class MatchDAO:
                 match.winner_team_id = winner_team_id
 
                 match.save()
+
+    @staticmethod
+    def get_next_match_from_current_match(match_id: int) -> Match | None:
+        match: Match = Match.query.filter(Match.id > match_id).order_by(Match.schedule.asc()).limit(1).first()
+
+        return match if match else None
