@@ -332,6 +332,6 @@ class LeagueService:
     def calculate_rank_for_a_match(match_id: int, league_id: int) -> dict:
         snapshots: list[Snapshot] = SnapshotDAO.get_all_rows_for_current_match_for_league(match_id, league_id)
         df = pd.DataFrame([snapshot.__dict__ for snapshot in snapshots])[['team_id', 'match_points']]
-        df['rank'] = df['match_points'].rank(ascending=False).astype(int)
+        df['rank'] = df['match_points'].rank(ascending=False, method='dense').astype(int)
 
         return df.set_index('team_id').to_dict()['rank']
