@@ -32,6 +32,11 @@ class SnapshotService:
                     abort(403, message=f'Team does not exist')
 
                 self.dao.submit_team(snapshot, team.draft_players, team.draft_remaining_subs)
+
+                # Create rows in snapshot for next match as soon as the current match gets locked
+                next_match: Match = MatchDAO.get_next_match_from_current_match(match_id)
+                self.dao.next_match_rows_for_league(next_match.id, snapshot)
+
             return {'message': 'Successfully submitted all teams for league.'}
         except Exception as e:
             abort(403, message=f'Failed with error: {e}')

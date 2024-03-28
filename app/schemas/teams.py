@@ -17,7 +17,7 @@ class GetTeamResponseSchema(Schema):
     id = fields.Int(required=True)
     name = fields.Str(required=True)
     substitutions = fields.Int(required=True)
-    points = fields.Int(required=True)
+    points = fields.Float(required=True)
     rank = fields.Int(required=True)
     previous_remaining_substitutes = fields.Int(required=True)
     draft_team = fields.List(fields.Nested(GetTeamPlayersResponseSchema))  # type: ignore
