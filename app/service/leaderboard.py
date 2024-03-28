@@ -66,7 +66,7 @@ class LeaderBoardService:
             if previous_match:
                 previous_snapshot: Snapshot = SnapshotDAO.get_row_for_team_in_league(previous_match.id, league_id,
                                                                                      snapshot.team_id)
-                trades = snapshot.remaining_substitutes - previous_snapshot.remaining_substitutes
+                trades = previous_snapshot.remaining_substitutes - snapshot.remaining_substitutes
 
             output.append(
                 {
